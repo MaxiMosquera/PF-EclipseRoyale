@@ -1,7 +1,8 @@
 import { Category } from 'src/enum/room.enums';
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { Reservation } from './reservation.entity';
+import { Features } from './features.entity';
 
 @Entity({ name: 'rooms' })
 export class Room {
@@ -17,7 +18,13 @@ export class Room {
   @Column({ nullable: false, type: 'enum', enum: Category })
   category: Category;
 
-  //TODO make the relation with reservation
+  
   @OneToOne(() => Reservation, (reservation) => reservation.room)
   reservation: Reservation;
+
+  @OneToMany(() => Features, (features) => features.room)
+  features: Features[];
+
+
+  
 }
