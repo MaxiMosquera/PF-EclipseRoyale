@@ -1,9 +1,10 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Role, Status } from 'src/enum/user.enums';
+import { CreateUserDto } from 'src/dtos/user.dtos';
 
 @Injectable()
 export class UserRepository implements OnModuleInit {
@@ -33,5 +34,48 @@ export class UserRepository implements OnModuleInit {
     });
 
     await this.userRepository.save(newUser);
+  }
+
+  async getAllUsers(page: number, limit: number): Promise<User[]> {
+    const [users]: [User[], number] = await this.userRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    if (!users.length) {
+      throw new NotFoundException(
+        'Users not found, please create at least one',
+      );
+    }
+
+    return users;
+  }
+
+  async getUserById(id: string): Promise<User> {
+    const user: User = await this.userRepository.findOne({ where: { id }, relations: { reservations: true } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  async create(data: CreateUserDto): Promise<User> {
+    const newUser: User = this.userRepository.create({
+      ...data,
+    });
+    return await this.userRepository.save(newUser);
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    return await this.userRepository.findOneBy({ email });
+  }
+
+  async deleteUser(id: string): Promise<string> {
+    const user: User = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    await this.userRepository.delete(id);
+    return 'User deleted';
   }
 }
