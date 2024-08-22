@@ -1,5 +1,13 @@
 import { Category } from 'src/enum/room.enums';
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { Reservation } from './reservation.entity';
 import { Features } from './features.entity';
@@ -10,21 +18,18 @@ export class Room {
   id: string = uuid();
 
   @Column({ nullable: false, type: 'int' })
-  name: string;
+  number: number;
 
   @Column({ nullable: false, type: 'int' })
   price: number;
 
-  @Column({ nullable: false, type: 'enum', enum: Category })
+  @Column({ nullable: false, type: 'enum', enum: Category, unique: false })
   category: Category;
 
-  
   @OneToOne(() => Reservation, (reservation) => reservation.room)
   reservation: Reservation;
 
-  @OneToMany(() => Features, (features) => features.room)
+  @ManyToMany(() => Features, (features) => features.rooms) // Asegúrate de que esto esté correcto
+  @JoinTable() // Asegúrate de que esto esté presente si usas una tabla de unión
   features: Features[];
-
-
-  
 }

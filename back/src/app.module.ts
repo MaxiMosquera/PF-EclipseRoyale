@@ -7,7 +7,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import typeormConfig from './config/typeorm';
 import { UserModule } from './modules/user.module';
 import { AuthModule } from './modules/auth.module';
-
+import { RoomModule } from './modules/room.module';
+import { ServiceModule } from './modules/service.module';
+import { FeatureModule } from './modules/feature.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [typeormConfig] }),
@@ -24,6 +26,9 @@ import { AuthModule } from './modules/auth.module';
     }),
     UserModule,
     AuthModule,
+    RoomModule,
+    ServiceModule,
+    FeatureModule,
   ],
   controllers: [AppController],
   providers: [AppService],
