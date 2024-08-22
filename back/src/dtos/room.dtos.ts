@@ -56,3 +56,17 @@ export class CreateFeatureDto {
   @IsEnum(Category)
   roomCategory: Category;
 }
+
+export class FilterRoomsDto {
+  @IsOptional()
+  @IsEnum(Category)
+  category?: Category;
+
+  @IsOptional()
+  @IsInt()
+  minPrice?: number;
+
+  @IsOptional()
+  @IsInt()
+  maxPrice?: number;
+}
