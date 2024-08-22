@@ -33,6 +33,9 @@ export class UpdateRoomDto {
   price?: number;
 
   @IsOptional()
+  image?: string;
+
+  @IsOptional()
   @IsEnum(Category)
   category?: Category;
 
