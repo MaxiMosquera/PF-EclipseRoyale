@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth.module';
 import { RoomModule } from './modules/room.module';
 import { ServiceModule } from './modules/service.module';
 import { FeatureModule } from './modules/feature.module';
+import { CloudinaryModule } from './modules/cloudinary.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [typeormConfig] }),
@@ -29,6 +30,7 @@ import { FeatureModule } from './modules/feature.module';
     RoomModule,
     ServiceModule,
     FeatureModule,
+    CloudinaryModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -64,4 +64,13 @@ export class ServiceRepository implements OnModuleInit {
       ...body,
     });
   }
+
+  async getServiceById(id: string) :Promise <Service> {
+    const service = await this.serviceRepository.findOneBy({ id });
+    if (!service) {
+      throw new NotFoundException('Service not found');
+    } else {
+      return service;
+    }
+  }
 }

@@ -1,4 +1,5 @@
-import { Controller, Delete, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Put, Query } from '@nestjs/common';
+import { UpdateUserDto } from 'src/dtos/updateuser.dto';
 import { User } from 'src/entities/user.entity';
 import { UserRepository } from 'src/repositories/user.repository';
 
@@ -16,6 +17,14 @@ export class UserController {
   @Get(':id')
   async getUserById(@Param('id',ParseUUIDPipe) id: string): Promise<User> {
     return await this.userRepository.getUserById(id);
+  }
+
+  @Put(':id')
+  async updateUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: Partial<UpdateUserDto>,
+  ): Promise<User> {
+    return await this.userRepository.updateUser(id, data);
   }
 
   @Delete(':id')

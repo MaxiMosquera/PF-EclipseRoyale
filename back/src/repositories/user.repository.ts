@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Role, Status } from 'src/enum/user.enums';
 import { CreateUserDto } from 'src/dtos/user.dtos';
+import { UpdateUserDto } from 'src/dtos/updateuser.dto';
 
 @Injectable()
 export class UserRepository implements OnModuleInit {
@@ -64,6 +65,32 @@ export class UserRepository implements OnModuleInit {
       ...data,
     });
     return await this.userRepository.save(newUser);
+  }
+
+  async updateUser(id: string, data: Partial<UpdateUserDto>): Promise<User> {
+    const user: User = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if(data.password && !data.oldPassword || !data.password && data.oldPassword) {
+      throw new BadRequestException('Old & new passwords are required');
+    }
+  
+    if(data.password && data.oldPassword) {
+      const isOldPasswordValid: boolean = await bcrypt.compare(data.oldPassword, user.password);
+      if (!isOldPasswordValid) {
+        throw new BadRequestException('Old password is not valid');
+      }
+      const hashedPassword = await bcrypt.hash(data.password, 10);
+      data.password = hashedPassword;
+    }
+  
+    const updatedUser = this.userRepository.merge(user, data);
+    await this.userRepository.save(updatedUser);
+  
+    
+    return updatedUser;
   }
 
   async findByEmail(email: string): Promise<User> {
