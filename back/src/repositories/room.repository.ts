@@ -38,7 +38,12 @@ export class RoomRepository {
   }
 
   async getRoomById(id: string) {
-    return await this.roomRepository.findOneBy({ id });
+    return await this.roomRepository.findOne({
+      where: {
+        id,
+      },
+      relations: ['features'],
+    });
   }
 
   async updateRoom(id: string, body: UpdateRoomDto) {
