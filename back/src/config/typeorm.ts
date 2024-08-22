@@ -15,10 +15,10 @@ const config = {
   migrations: ['dist/src/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',
   autoloadEntities: true,
-  logging: ['error'],
+  logging: ['all'],
   migrationsRun: true,
   synchronize: true,
-  dropSchema: true,
+  //dropSchema: true,
 };
 
 export default registerAs('typeorm', () => config);
