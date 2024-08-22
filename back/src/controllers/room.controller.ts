@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   ParseUUIDPipe,
   Post,
   Put,
@@ -10,6 +11,7 @@ import {
 import {
   CreateFeatureDto,
   CreateRoomDto,
+  FilterRoomsDto,
   UpdateRoomDto,
 } from 'src/dtos/room.dtos';
 import { RoomRepository } from 'src/repositories/room.repository';
@@ -22,12 +24,13 @@ export class RoomController {
   async getAllRooms(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
+    @Body() body?: FilterRoomsDto,
   ) {
-    return await this.roomRepository.getAllRooms(page, limit);
+    return await this.roomRepository.getAllRooms(page, limit, body);
   }
 
   @Get('getRoomById/:id')
-  async getRoomById(@Query('id', ParseUUIDPipe) id: string) {
+  async getRoomById(@Param('id', ParseUUIDPipe) id: string) {
     return await this.roomRepository.getRoomById(id);
   }
 
