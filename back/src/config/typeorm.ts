@@ -24,3 +24,4 @@ const config = {
 export default registerAs('typeorm', () => config);
 export const connectDataSource = () =>
   new DataSource(config as DataSourceOptions);
+// a

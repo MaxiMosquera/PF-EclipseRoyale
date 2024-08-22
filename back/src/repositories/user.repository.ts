@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -35,6 +40,7 @@ export class UserRepository implements OnModuleInit {
     });
 
     await this.userRepository.save(newUser);
+    console.log('admin created');
   }
 
   async getAllUsers(page: number, limit: number): Promise<User[]> {
@@ -53,7 +59,10 @@ export class UserRepository implements OnModuleInit {
   }
 
   async getUserById(id: string): Promise<User> {
-    const user: User = await this.userRepository.findOne({ where: { id }, relations: { reservations: true } });
+    const user: User = await this.userRepository.findOne({
+      where: { id },
+      relations: { reservations: true },
+    });
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -73,23 +82,28 @@ export class UserRepository implements OnModuleInit {
       throw new NotFoundException('User not found');
     }
 
-    if(data.password && !data.oldPassword || !data.password && data.oldPassword) {
+    if (
+      (data.password && !data.oldPassword) ||
+      (!data.password && data.oldPassword)
+    ) {
       throw new BadRequestException('Old & new passwords are required');
     }
-  
-    if(data.password && data.oldPassword) {
-      const isOldPasswordValid: boolean = await bcrypt.compare(data.oldPassword, user.password);
+
+    if (data.password && data.oldPassword) {
+      const isOldPasswordValid: boolean = await bcrypt.compare(
+        data.oldPassword,
+        user.password,
+      );
       if (!isOldPasswordValid) {
         throw new BadRequestException('Old password is not valid');
       }
       const hashedPassword = await bcrypt.hash(data.password, 10);
       data.password = hashedPassword;
     }
-  
+
     const updatedUser = this.userRepository.merge(user, data);
     await this.userRepository.save(updatedUser);
-  
-    
+
     return updatedUser;
   }
 
