@@ -8,7 +8,6 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Room } from './room.entity';
-import { ReservationHistory } from './reservationHistory.entity';
 import { Service } from './service.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -49,49 +48,49 @@ export class Reservation {
   endDate: Date;
 
   @ApiProperty({ description: 'The first name of the clients guest.' })
-  @Column({ nullable: false, type: 'varchar', length: 50 })
+  @Column({ nullable: true, type: 'varchar', length: 50 })
   @IsOptional()
   @IsString()
   guestName1?: string;
 
   @ApiProperty({ description: 'The last name of the clients guest.' })
-  @Column({ nullable: false, type: 'varchar' })
+  @Column({ nullable: true, type: 'varchar' })
   @IsOptional()
   @IsString()
   guestLastName1?: string;
 
   @ApiProperty({ description: 'The first name of the clients second guest.' })
-  @Column({ nullable: false, type: 'varchar' })
+  @Column({ nullable: true, type: 'varchar' })
   @IsOptional()
   @IsString()
   guestName2?: string;
 
   @ApiProperty({ description: 'The last name of the clients second guest.' })
-  @Column({ nullable: false, type: 'varchar', length: 50 })
+  @Column({ nullable: true, type: 'varchar', length: 50 })
   @IsOptional()
   @IsString()
   guestLastName2?: string;
 
   @ApiProperty({ description: 'The first name of the clients third guest.' })
-  @Column({ nullable: false, type: 'varchar', length: 50 })
+  @Column({ nullable: true, type: 'varchar', length: 50 })
   @IsOptional()
   @IsString()
   guestName3?: string;
 
   @ApiProperty({ description: 'The last name of the clients third guest.' })
-  @Column({ nullable: false, type: 'varchar' })
+  @Column({ nullable: true, type: 'varchar' })
   @IsOptional()
   @IsString()
   guestLastName3?: string;
 
   @ApiProperty({ description: 'The first name of the clients fourth guest.' })
-  @Column({ nullable: false, type: 'varchar' })
+  @Column({ nullable: true, type: 'varchar' })
   @IsOptional()
   @IsString()
   guestName4?: string;
 
   @ApiProperty({ description: 'The last name of the clients fourth guest.' })
-  @Column({ nullable: false, type: 'varchar' })
+  @Column({ nullable: true, type: 'varchar' })
   @IsOptional()
   @IsString()
   guestLastName4?: string;

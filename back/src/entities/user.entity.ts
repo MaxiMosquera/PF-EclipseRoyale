@@ -1,12 +1,5 @@
 import { Role, Status } from 'src/enum/user.enums';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { Reservation } from './reservation.entity';
 import { ApiProperty } from '@nestjs/swagger';
