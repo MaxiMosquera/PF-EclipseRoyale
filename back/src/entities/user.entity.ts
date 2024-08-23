@@ -2,7 +2,7 @@ import { Role, Status } from 'src/enum/user.enums';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { Reservation } from './reservation.entity';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEmail,
   IsEnum,
@@ -47,7 +47,7 @@ export class User {
   @Column({ nullable: false, type: 'varchar' })
   password: string;
 
-  @ApiProperty({ description: "User's image", example: 'image.png' })
+  @ApiPropertyOptional({ description: "User's image", example: 'image.png' })
   @IsOptional()
   @Column({ nullable: true, type: 'varchar' })
   image?: string;

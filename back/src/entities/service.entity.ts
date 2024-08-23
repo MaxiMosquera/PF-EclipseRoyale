@@ -25,12 +25,19 @@ export class Service {
   @IsNumber()
   price: number;
 
-  @ApiProperty({ description: 'Service type', example: 'BREAKFAST' })
+  @ApiProperty({
+    description: 'Service type',
+    example: 'BREAKFAST',
+  })
   @Column({ nullable: false, type: 'enum', enum: Type })
   @IsNotEmpty()
   @IsEnum(Type)
   type: Type;
 
+  @ApiProperty({
+    description: 'List of reservations associated with this service.',
+    type: [ReservationService],
+  })
   @OneToMany(
     () => ReservationService,
     (reservationService) => reservationService.service,

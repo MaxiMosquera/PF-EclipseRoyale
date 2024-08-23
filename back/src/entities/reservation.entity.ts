@@ -8,7 +8,6 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Room } from './room.entity';
-import { Service } from './service.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
@@ -33,9 +32,15 @@ export class Reservation {
   @IsNotEmpty()
   price: number;
 
+  @ApiProperty({ description: 'The start date of the reservation.' })
   @Column({ nullable: false, type: 'date' })
   startDate: Date;
 
+  @ApiProperty({
+    description:
+      'The status of the reservation. Can be either "active" or "finished".',
+    enum: ['active', 'finished'],
+  })
   @Column({
     nullable: false,
     type: 'enum',
@@ -44,65 +49,73 @@ export class Reservation {
   })
   status: string;
 
+  @ApiProperty({ description: 'The end date of the reservation.' })
   @Column({ nullable: false, type: 'date' })
   endDate: Date;
 
-  @ApiProperty({ description: 'The first name of the clients guest.' })
+  @ApiProperty({ description: "The first name of the client's first guest." })
   @Column({ nullable: true, type: 'varchar', length: 50 })
   @IsOptional()
   @IsString()
   guestName1?: string;
 
-  @ApiProperty({ description: 'The last name of the clients guest.' })
+  @ApiProperty({ description: "The last name of the client's first guest." })
   @Column({ nullable: true, type: 'varchar' })
   @IsOptional()
   @IsString()
   guestLastName1?: string;
 
-  @ApiProperty({ description: 'The first name of the clients second guest.' })
+  @ApiProperty({ description: "The first name of the client's second guest." })
   @Column({ nullable: true, type: 'varchar' })
   @IsOptional()
   @IsString()
   guestName2?: string;
 
-  @ApiProperty({ description: 'The last name of the clients second guest.' })
+  @ApiProperty({ description: "The last name of the client's second guest." })
   @Column({ nullable: true, type: 'varchar', length: 50 })
   @IsOptional()
   @IsString()
   guestLastName2?: string;
 
-  @ApiProperty({ description: 'The first name of the clients third guest.' })
+  @ApiProperty({ description: "The first name of the client's third guest." })
   @Column({ nullable: true, type: 'varchar', length: 50 })
   @IsOptional()
   @IsString()
   guestName3?: string;
 
-  @ApiProperty({ description: 'The last name of the clients third guest.' })
+  @ApiProperty({ description: "The last name of the client's third guest." })
   @Column({ nullable: true, type: 'varchar' })
   @IsOptional()
   @IsString()
   guestLastName3?: string;
 
-  @ApiProperty({ description: 'The first name of the clients fourth guest.' })
+  @ApiProperty({ description: "The first name of the client's fourth guest." })
   @Column({ nullable: true, type: 'varchar' })
   @IsOptional()
   @IsString()
   guestName4?: string;
 
-  @ApiProperty({ description: 'The last name of the clients fourth guest.' })
+  @ApiProperty({ description: "The last name of the client's fourth guest." })
   @Column({ nullable: true, type: 'varchar' })
   @IsOptional()
   @IsString()
   guestLastName4?: string;
 
-  @ApiProperty({ description: 'The id of the user who made the reservation.' })
+  @ApiProperty({ description: 'The user who made the reservation.' })
   @ManyToOne(() => User, (user) => user.reservations)
   user: User;
 
+  @ApiProperty({ description: 'The room associated with the reservation.' })
   @ManyToOne(() => Room, (room) => room.reservations)
   @JoinColumn({ name: 'roomId' })
   room: Room;
 
+  @ApiProperty({
+    description:
+      'The list of services associated with the reservation through the ReservationService entity.',
+    type: () => ReservationService,
+    isArray: true,
+  })
   @OneToMany(
     () => ReservationService,
     (reservationService) => reservationService.reservation,
