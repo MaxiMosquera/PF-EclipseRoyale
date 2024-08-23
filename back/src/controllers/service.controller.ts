@@ -7,24 +7,58 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiTags, ApiBody } from '@nestjs/swagger';
 import { CreateServiceDto } from 'src/dtos/service.dtos';
 import { Service } from 'src/entities/service.entity';
 import { ServiceRepository } from 'src/repositories/services.repository';
 
+@ApiTags('Services')
 @Controller('services')
 export class ServiceController {
   constructor(private readonly serviceRepository: ServiceRepository) {}
 
-  @Get(":id")
-  async getServiceById(@Param('id', ParseUUIDPipe) id: string):Promise <Service> {
+  @ApiOperation({
+    summary: 'Get a service by ID',
+    description: 'Retrieve a specific service by its ID.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the service to retrieve',
+    type: String,
+  })
+  @Get(':id')
+  async getServiceById(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<Service> {
     return await this.serviceRepository.getServiceById(id);
   }
+
+  @ApiOperation({
+    summary: 'Create a new service',
+    description: 'Create a new service with the provided details.',
+  })
+  @ApiBody({
+    type: CreateServiceDto,
+  })
   @Post('createService')
   async createService(@Body() body: CreateServiceDto) {
     return await this.serviceRepository.createService(body);
   }
 
-  @Put('updateService/:id') // service id
+  @ApiOperation({
+    summary: 'Update an existing service',
+    description: 'Update the details of a specific service by its ID.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the service to update',
+    type: String,
+  })
+  @ApiBody({
+    type: CreateServiceDto,
+    description: 'Partial service details to update',
+  })
+  @Put('updateService/:id')
   async updateService(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: Partial<CreateServiceDto>,
