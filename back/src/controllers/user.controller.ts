@@ -9,7 +9,12 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { DeleteUserSwagger, getAllUsersSwagger, GetUserByIdSwagger, UpdateUserSwagger } from 'src/decorators/user.decorator';
+import {
+  DeleteUserSwagger,
+  getAllUsersSwagger,
+  GetUserByIdSwagger,
+  UpdateUserSwagger,
+} from 'src/decorators/user.decorator';
 import { UpdateUserDto } from 'src/dtos/updateuser.dto';
 import { User } from 'src/entities/user.entity';
 import { UserRepository } from 'src/repositories/user.repository';
@@ -33,14 +38,14 @@ export class UserController {
     return await this.userRepository.getUserById(id);
   }
 
-   @Put(':id')
-   @UpdateUserSwagger()
-   async updateUser(
+  @Put(':id')
+  @UpdateUserSwagger()
+  async updateUser(
     @Param('id', ParseUUIDPipe) id: string,
-     @Body() data: Partial<UpdateUserDto>,
-   ): Promise<User> {
-     return await this.userRepository.updateUser(id, data);
-   }
+    @Body() data: Partial<UpdateUserDto>,
+  ): Promise<User> {
+    return await this.userRepository.updateUser(id, data);
+  }
 
   @Delete(':id')
   @DeleteUserSwagger()

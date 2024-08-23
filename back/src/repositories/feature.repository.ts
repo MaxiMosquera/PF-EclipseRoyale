@@ -11,6 +11,7 @@ import { Room } from 'src/entities/room.entity';
 import { Repository } from 'typeorm';
 import { features } from 'src/utils/features';
 import { rooms } from 'src/utils/rooms';
+import { GuestPrice } from 'src/entities/guestPrice.entity';
 
 @Injectable()
 export class FeatureRepository implements OnModuleInit {
@@ -18,9 +19,22 @@ export class FeatureRepository implements OnModuleInit {
     @InjectRepository(Features)
     private readonly featureRepository: Repository<Features>,
     @InjectRepository(Room) private readonly roomRepository: Repository<Room>,
+    @InjectRepository(GuestPrice)
+    private readonly guestPriceRepository: Repository<GuestPrice>,
   ) {}
 
   async onModuleInit() {
+    const price = await this.guestPriceRepository.findOneBy({ name: 'guest' });
+
+    if (price) {
+      return;
+    }
+
+    const guestPrice = new GuestPrice();
+    guestPrice.name = 'guest';
+    guestPrice.price = 15;
+    await this.guestPriceRepository.save(guestPrice);
+
     for (const feature of features) {
       const exists = await this.featureRepository.findOneBy({
         name: feature.name,

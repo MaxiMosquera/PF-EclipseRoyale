@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
   OnModuleInit,
@@ -31,39 +32,130 @@ export class RoomRepository {
     limit: number,
     body?: FilterRoomsDto,
   ): Promise<any> {
-    const queryBuilder = this.roomRepository.createQueryBuilder('room');
+    if (page <= 0) {
+      throw new ConflictException('Page number must be greater than 0.');
+    }
 
-    queryBuilder.leftJoinAndSelect('room.features', 'features');
+    if (limit <= 0) {
+      throw new ConflictException('Limit must be greater than 0.');
+    }
+
+    // Calcular el offset para la paginación
+    const offset = (page - 1) * limit;
+
+    // Inicializar las condiciones de búsqueda
+    const conditions: any = [];
+    const parameters: any = {};
 
     if (body) {
-      const { category, minPrice, maxPrice } = body;
+      const {
+        category,
+        minPrice,
+        maxPrice,
+        startDay,
+        startMonth,
+        startYear,
+        endDay,
+        endMonth,
+        endYear,
+      } = body;
 
       if (category) {
-        queryBuilder.andWhere('room.category = :category', { category });
+        conditions.push('room.category = :category');
+        parameters['category'] = category;
       }
 
       if (minPrice !== undefined) {
-        queryBuilder.andWhere('room.price >= :minPrice', { minPrice });
+        if (minPrice < 0) {
+          throw new ConflictException('MinPrice cannot be negative.');
+        }
+        conditions.push('room.price >= :minPrice');
+        parameters['minPrice'] = minPrice;
       }
 
       if (maxPrice !== undefined) {
-        queryBuilder.andWhere('room.price <= :maxPrice', { maxPrice });
+        if (maxPrice < 0) {
+          throw new ConflictException('MaxPrice cannot be negative.');
+        }
+        conditions.push('room.price <= :maxPrice');
+        parameters['maxPrice'] = maxPrice;
+      }
+
+      if (
+        minPrice !== undefined &&
+        maxPrice !== undefined &&
+        minPrice > maxPrice
+      ) {
+        throw new ConflictException(
+          'MinPrice cannot be greater than MaxPrice.',
+        );
+      }
+
+      const hasStartDate =
+        startDay !== undefined &&
+        startMonth !== undefined &&
+        startYear !== undefined;
+      const hasEndDate =
+        endDay !== undefined && endMonth !== undefined && endYear !== undefined;
+
+      if (hasStartDate && hasEndDate) {
+        const startDate = new Date(startYear, startMonth - 1, startDay);
+        const endDate = new Date(endYear, endMonth - 1, endDay);
+
+        if (startDate > endDate) {
+          throw new ConflictException('Start date cannot be after end date.');
+        }
+
+        // Usar una subconsulta para encontrar habitaciones ocupadas en el rango de fechas
+        const occupiedRooms = await this.roomRepository
+          .createQueryBuilder('room')
+          .leftJoin('room.reservations', 'reservation')
+          .where(
+            'reservation.startDate <= :endDate AND reservation.endDate >= :startDate',
+            { startDate, endDate },
+          )
+          .select('room.id')
+          .getRawMany();
+
+        const occupiedRoomIds = occupiedRooms.map((row) => row.room_id);
+
+        // Excluir habitaciones ocupadas
+        if (occupiedRoomIds.length > 0) {
+          conditions.push('room.id NOT IN (:...occupiedRoomIds)');
+          parameters['occupiedRoomIds'] = occupiedRoomIds;
+        }
+      } else if (hasStartDate || hasEndDate) {
+        throw new ConflictException(
+          'Both start date and end date must be provided.',
+        );
       }
     }
 
-    // Paginación
-    queryBuilder.skip((page - 1) * limit).take(limit);
-
-    // Ejecuta la consulta y cuenta el total
-    const [rooms, total] = await queryBuilder.getManyAndCount();
+    // Consultar habitaciones según las condiciones
+    const [rooms, total] = await this.roomRepository
+      .createQueryBuilder('room')
+      .leftJoinAndSelect('room.features', 'features')
+      .leftJoinAndSelect('room.reservations', 'reservations')
+      .where(conditions.length ? conditions.join(' AND ') : '1=1', parameters)
+      .skip(offset)
+      .take(limit)
+      .getManyAndCount();
 
     return {
       data: rooms,
       total,
       currentPage: page,
       totalPages: Math.ceil(total / limit),
+      message:
+        total === 0 ? 'No rooms found matching the criteria.' : undefined,
     };
   }
+
+  // async getAllRooms() {
+  //   return await this.roomRepository.find({
+  //     relations: ['features'],
+  //   });
+  // }
 
   async getRoomById(id: string) {
     const room = await this.roomRepository.findOne({

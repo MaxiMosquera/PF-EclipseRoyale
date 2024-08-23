@@ -1,4 +1,3 @@
-
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
@@ -13,10 +12,23 @@ import { ServiceRepository } from 'src/repositories/services.repository';
 import { UserRepository } from 'src/repositories/user.repository';
 import { CloudinaryService } from 'src/services/cloudinary.service';
 import { CloudinaryController } from 'src/controllers/cloudinary.controller';
+import { MonthlyProfit } from 'src/entities/monthlyProfit.entity';
+import { ReservationService } from 'src/entities/s-r.entity';
+import { GuestPrice } from 'src/entities/guestPrice.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Room, Reservation, Features, Service]),
+    TypeOrmModule.forFeature([
+      User,
+      Room,
+      Reservation,
+      Features,
+      Service,
+      Reservation,
+      MonthlyProfit,
+      ReservationService,
+      GuestPrice,
+    ]),
   ],
   controllers: [CloudinaryController],
   providers: [

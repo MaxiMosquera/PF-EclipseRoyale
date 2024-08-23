@@ -10,6 +10,8 @@ import { AuthModule } from './modules/auth.module';
 import { RoomModule } from './modules/room.module';
 import { ServiceModule } from './modules/service.module';
 import { FeatureModule } from './modules/feature.module';
+import { CloudinaryModule } from './modules/cloudinary.module';
+import { ReservationModule } from './modules/reservation.module';
 // import { CloudinaryModule } from './modules/cloudinary.module';
 @Module({
   imports: [
@@ -30,11 +32,10 @@ import { FeatureModule } from './modules/feature.module';
     RoomModule,
     ServiceModule,
     FeatureModule,
-    // CloudinaryModule,
+    CloudinaryModule,
+    ReservationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
-
-

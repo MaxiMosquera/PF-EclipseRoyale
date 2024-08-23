@@ -70,6 +70,14 @@ export class CreateFeatureDto {
 }
 
 export class FilterRoomsDto {
+  startDay?: number;
+  startMonth?: number;
+  startYear?: number;
+
+  endDay?: number;
+  endMonth?: number;
+  endYear?: number;
+
   @IsOptional()
   @IsEnum(Category)
   category?: Category;
