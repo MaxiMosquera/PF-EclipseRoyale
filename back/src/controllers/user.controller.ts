@@ -28,13 +28,13 @@ export class UserController {
     return await this.userRepository.getUserById(id);
   }
 
-  // @Put(':id')
-  // async updateUser(
-  //   @Param('id', ParseUUIDPipe) id: string,
-  //   @Body() data: Partial<UpdateUserDto>,
-  // ): Promise<User> {
-  //   return await this.userRepository.updateUser(id, data);
-  // }
+  @Put(':id')
+  async updateUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: Partial<UpdateUserDto>,
+  ): Promise<User> {
+    return await this.userRepository.updateUser(id, data);
+  }
 
   @Delete(':id')
   async deleteUser(@Param('id', ParseUUIDPipe) id: string): Promise<string> {

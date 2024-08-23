@@ -26,8 +26,8 @@ export class Room {
   @Column({ nullable: false, type: 'enum', enum: Category, unique: false })
   category: Category;
 
-  @OneToOne(() => Reservation, (reservation) => reservation.room)
-  reservation: Reservation;
+  @OneToMany(() => Reservation, (reservation) => reservation.room)
+  reservations: Reservation[];
 
   @ManyToMany(() => Features, (features) => features.rooms) // Asegúrate de que esto esté correcto
   @JoinTable() // Asegúrate de que esto esté presente si usas una tabla de unión

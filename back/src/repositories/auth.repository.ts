@@ -31,6 +31,7 @@ export class AuthRepository {
       password: hashedPassword,
     });
     await this.userRepository.save(user);
+
     return user;
   }
 
@@ -42,6 +43,7 @@ export class AuthRepository {
     };
     return this.jwtService.sign(payload, { secret: process.env.JWT_SECRET });
   }
+
   async login(
     email: string,
     password: string,

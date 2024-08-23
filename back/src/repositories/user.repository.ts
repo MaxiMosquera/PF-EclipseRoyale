@@ -9,7 +9,6 @@ import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Role, Status } from 'src/enum/user.enums';
-import { CreateUserDto } from 'src/dtos/user.dtos';
 import { UpdateUserDto } from 'src/dtos/updateuser.dto';
 
 @Injectable()
@@ -67,13 +66,6 @@ export class UserRepository implements OnModuleInit {
       throw new NotFoundException('User not found');
     }
     return user;
-  }
-
-  async create(data: CreateUserDto): Promise<User> {
-    const newUser: User = this.userRepository.create({
-      ...data,
-    });
-    return await this.userRepository.save(newUser);
   }
 
   async updateUser(id: string, data: Partial<UpdateUserDto>): Promise<User> {

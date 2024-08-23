@@ -2,13 +2,13 @@ import { Role, Status } from 'src/enum/user.enums';
 import {
   Column,
   Entity,
+  JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { Reservation } from './reservation.entity';
-import { ReservationHistory } from './reservationHistory.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -46,10 +46,4 @@ export class User {
 
   @OneToMany(() => Reservation, (reservation) => reservation.user)
   reservations: Reservation[];
-
-  @OneToOne(
-    () => ReservationHistory,
-    (reservationHistory) => reservationHistory.user,
-  )
-  reservationHistory: ReservationHistory;
 }

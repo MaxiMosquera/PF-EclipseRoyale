@@ -1,12 +1,11 @@
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { ReservationService } from './s-r.entity';
 import { Type } from 'src/enum/service.enums';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { v4 as uuid } from 'uuid';
-import { Reservation } from './reservation.entity';
 
 @Entity({ name: 'services' })
 export class Service {
   @PrimaryGeneratedColumn('uuid')
-  id: string = uuid();
+  id: string;
 
   @Column({ nullable: false, type: 'int' })
   price: number;
@@ -14,6 +13,9 @@ export class Service {
   @Column({ nullable: false, type: 'enum', enum: Type })
   type: Type;
 
-  @ManyToOne(() => Reservation, (reservation) => reservation.services)
-  reservation: Reservation;
+  @OneToMany(
+    () => ReservationService,
+    (reservationService) => reservationService.service,
+  )
+  reservationServices: ReservationService[];
 }
