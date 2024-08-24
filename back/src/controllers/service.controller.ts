@@ -7,7 +7,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiTags, ApiBody } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { createServiceApiResponse, getServiceByIdApiResponse, updateServiceByIdApiResponse } from 'src/dtos/responses.dtos/serviceResponses.dtos';
 import { CreateServiceDto } from 'src/dtos/service.dtos';
 import { Service } from 'src/entities/service.entity';
 import { ServiceRepository } from 'src/repositories/services.repository';
@@ -26,6 +27,8 @@ export class ServiceController {
     description: 'UUID of the service to retrieve',
     type: String,
   })
+  @ApiResponse(getServiceByIdApiResponse)
+
   @Get(':id')
   async getServiceById(
     @Param('id', ParseUUIDPipe) id: string,
@@ -40,6 +43,7 @@ export class ServiceController {
   @ApiBody({
     type: CreateServiceDto,
   })
+  @ApiResponse(createServiceApiResponse)
   @Post('createService')
   async createService(@Body() body: CreateServiceDto) {
     return await this.serviceRepository.createService(body);
@@ -58,9 +62,10 @@ export class ServiceController {
     type: CreateServiceDto,
     description: 'Partial service details to update',
   })
+  @ApiResponse(updateServiceByIdApiResponse)
   @Put('updateService/:id')
   async updateService(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseUUIDPipe) id:string,
     @Body() body: Partial<CreateServiceDto>,
   ) {
     return await this.serviceRepository.updateService(id, body);
