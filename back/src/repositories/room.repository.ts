@@ -164,6 +164,11 @@ export class RoomRepository {
       },
       relations: ['features'],
     });
+
+    if (!room) {
+      throw new NotFoundException(`Room with ID ${id} not found`);
+    }
+    
     const availableServices = await this.serviceRepository.find({});
 
     return [room, availableServices];
