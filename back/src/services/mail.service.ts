@@ -20,11 +20,11 @@ export class MailService {
   // Método para enviar el correo de confirmación
   async sendUserConfirmation(email: string): Promise<void> {
     const mailOptions = {
-      from: '"Tu Nombre" <pablorodriguez6002@gmail.com>', // Remitente
+      from: '"Tu Nombre" <contactoeclipseroyale@gmail.com>', // Remitente
       to: email, // Destinatario
       subject: 'Registro exitoso', // Asunto
       text: '¡Gracias por registrarte!', // Texto en plano
-      html: '<b>¡Gracias por registrarte!</b>', // HTML del cuerpo del correo
+      html: "<h1>Gracias Por Registrarte con Hotel Eclipse Royale</h1> <p>Una vez registrado puedes acceder a nuestros servicios</p>", // HTML del cuerpo del correo
     };
 
     await this.transporter.sendMail(mailOptions);
