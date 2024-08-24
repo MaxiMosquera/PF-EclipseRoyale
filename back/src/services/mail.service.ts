@@ -29,4 +29,18 @@ export class MailService {
 
     await this.transporter.sendMail(mailOptions);
   }
+
+  async sendReservationemail(email: string, name: string): Promise<void> {
+    const mailOptions = {
+      from: '"Tu Nombre" <contactoeclipseroyale@gmail.com>', // Remitente
+      to: email, // Destinatario
+      subject: 'Reserva exitosa', // Asunto
+      text: '¡Gracias por reservar!', // Texto en plano
+      html: `<h1>Gracias ${name} Por Reservar con Hotel Eclipse Royale</h1> <p>Puedes ver tus reservas en la seccion historial</p>`, // HTML del cuerpo del correo
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
 }
+
+
