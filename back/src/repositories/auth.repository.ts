@@ -9,6 +9,7 @@ import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import * as nodemailer from "nodemailer";
 
 @Injectable()
 export class AuthRepository {
@@ -31,6 +32,31 @@ export class AuthRepository {
       password: hashedPassword,
     });
     await this.userRepository.save(user);
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "contactoeclipseroyale@gmail.com",
+        pass: "pyyk uqsb jnvu vzhu"
+        //pass: "1234eclipse.",
+      }
+    });
+
+    async function main() {
+
+      const info = await transporter.sendMail({
+        from: "contactoeclipseroyale@gmail.com", 
+        to: body.email, 
+        subject: "Confirmacion de Registro Hotel Eclipse Royale", 
+        text: "Gracias por registrarte con Hoteles Eclipse Royale", 
+        html: "<h1>Gracias Por Registrarte con Hotel Eclipse Royale</h1> <p>Una vez registrado puedes acceder a nuestros servicios</p>", 
+      });
+    
+      console.log("Mensaje enviado: %s", info.messageId);
+      
+    }
+    
+    main().catch(console.error);
 
     return user;
   }
