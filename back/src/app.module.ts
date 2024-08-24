@@ -12,6 +12,8 @@ import { ServiceModule } from './modules/service.module';
 import { FeatureModule } from './modules/feature.module';
 import { CloudinaryModule } from './modules/cloudinary.module';
 import { ReservationModule } from './modules/reservation.module';
+import { MailService } from './services/mail.service';
+import { MailModule } from './modules/mail.module';
 // import { CloudinaryModule } from './modules/cloudinary.module';
 @Module({
   imports: [
@@ -34,6 +36,7 @@ import { ReservationModule } from './modules/reservation.module';
     FeatureModule,
     CloudinaryModule,
     ReservationModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
