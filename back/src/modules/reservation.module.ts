@@ -9,6 +9,7 @@ import { Service } from 'src/entities/service.entity';
 import { ReservationRepository } from 'src/repositories/reservation.repository';
 import { ReservationService } from 'src/entities/s-r.entity';
 import { GuestPrice } from 'src/entities/guestPrice.entity';
+import { MailService } from 'src/services/mail.service';
 
 @Module({
   imports: [
@@ -23,6 +24,6 @@ import { GuestPrice } from 'src/entities/guestPrice.entity';
     ]),
   ],
   controllers: [ReservationController],
-  providers: [ReservationRepository],
+  providers: [ReservationRepository, MailService],
 })
 export class ReservationModule {}

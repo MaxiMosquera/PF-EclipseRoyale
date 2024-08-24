@@ -15,6 +15,7 @@ import { CloudinaryController } from 'src/controllers/cloudinary.controller';
 import { MonthlyProfit } from 'src/entities/monthlyProfit.entity';
 import { ReservationService } from 'src/entities/s-r.entity';
 import { GuestPrice } from 'src/entities/guestPrice.entity';
+import { MailService } from 'src/services/mail.service';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { GuestPrice } from 'src/entities/guestPrice.entity';
     UserRepository,
     RoomRepository,
     ServiceRepository,
+    MailService,
     FeatureRepository,
     CloudinaryService,
     CloudinaryConfig,
