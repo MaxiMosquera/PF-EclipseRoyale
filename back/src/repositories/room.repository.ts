@@ -172,8 +172,13 @@ export class RoomRepository {
     }
     
     const availableServices = await this.serviceRepository.find({});
-    // Añadir las imágenes correspondientes a la categoría
+    
+     // Añadir las imágenes correspondientes a la categoría
+    if (roomImages[room.category as Category]) {
     room.images = roomImages[room.category as Category];
+   } else {
+    room.images = []; // O manejar el caso donde no haya imágenes
+   }
 
     return [room, availableServices];
   }

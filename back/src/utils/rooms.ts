@@ -1,6 +1,6 @@
 import { Category } from 'src/enum/room.enums';
 import { roomImages } from './roomsimages';
-import { log } from 'console';
+
 
 console.log(roomImages);
 

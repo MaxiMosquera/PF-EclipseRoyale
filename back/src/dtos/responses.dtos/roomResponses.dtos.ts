@@ -12,6 +12,7 @@ export class GetAllRoomsResponseDto {
         number: 7,
         price: 60,
         category: 'suite',
+        
         features: [
           {
             id: '80ab6bde-a934-4792-a0be-23cbfe8fc034',
