@@ -29,7 +29,7 @@ export class ReservationController {
     description: 'UUID of the user whose reservations are to be fetched',
     type: String,
   })
-  @Get('getReservations/:id')
+  @Get('getReservations/:id') // user id
   async getReservations(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body?: GetReservationsFiltersDto,

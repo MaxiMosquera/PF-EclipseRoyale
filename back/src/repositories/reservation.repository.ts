@@ -37,30 +37,18 @@ export class ReservationRepository {
   ) {}
 
   async getReservations(id: string, body?: GetReservationsFiltersDto) {
-    const hasStartDate = body?.startDay || body?.startMonth || body?.startYear;
-    const hasEndDate = body?.endDay || body?.endMonth || body?.endYear;
+    const hasStartDate = body?.startDate;
+    const hasEndDate = body?.endDate;
+    if (
+      (body?.startDate && !body?.endDate) ||
+      (!body?.startDate && body?.endDate)
+    ) {
+      throw new ConflictException('Incomplete date information providedAAAA.');
+    }
 
     if (hasStartDate || hasEndDate) {
-      const missingStartDateParts =
-        (body.startDay && (!body.startMonth || !body.startYear)) ||
-        (body.startMonth && (!body.startDay || !body.startYear)) ||
-        (body.startYear && (!body.startDay || !body.startMonth));
-
-      const missingEndDateParts =
-        (body.endDay && (!body.endMonth || !body.endYear)) ||
-        (body.endMonth && (!body.endDay || !body.endYear)) ||
-        (body.endYear && (!body.endDay || !body.endMonth));
-
-      if (missingStartDateParts || missingEndDateParts) {
-        throw new ConflictException('Incomplete date information provided.');
-      }
-
-      const startDate = new Date(
-        body.startYear,
-        body.startMonth - 1,
-        body.startDay,
-      );
-      const endDate = new Date(body.endYear, body.endMonth - 1, body.endDay);
+      const startDate = new Date(body.startDate);
+      const endDate = new Date(body.startDate);
 
       if (startDate > endDate) {
         throw new ConflictException(
@@ -80,7 +68,7 @@ export class ReservationRepository {
       return reservations;
     }
 
-    if (!body) {
+    if (!body.endDate && !body.startDate && !body.status) {
       const reservations = await this.reservationRepository.find({
         where: { user: { id } },
       });
@@ -94,30 +82,17 @@ export class ReservationRepository {
   }
 
   async getAllReservations(body?: GetReservationsFiltersDto) {
-    const hasStartDate = body?.startDay || body?.startMonth || body?.startYear;
-    const hasEndDate = body?.endDay || body?.endMonth || body?.endYear;
-
+    const hasStartDate = body?.startDate;
+    const hasEndDate = body?.endDate;
+    if (
+      (body?.startDate && !body?.endDate) ||
+      (!body?.startDate && body?.endDate)
+    ) {
+      throw new ConflictException('Incomplete date information providedAAAA.');
+    }
     if (hasStartDate || hasEndDate) {
-      const missingStartDateParts =
-        (body.startDay && (!body.startMonth || !body.startYear)) ||
-        (body.startMonth && (!body.startDay || !body.startYear)) ||
-        (body.startYear && (!body.startDay || !body.startMonth));
-
-      const missingEndDateParts =
-        (body.endDay && (!body.endMonth || !body.endYear)) ||
-        (body.endMonth && (!body.endDay || !body.endYear)) ||
-        (body.endYear && (!body.endDay || !body.endMonth));
-
-      if (missingStartDateParts || missingEndDateParts) {
-        throw new ConflictException('Incomplete date information provided.');
-      }
-
-      const startDate = new Date(
-        body.startYear,
-        body.startMonth - 1,
-        body.startDay,
-      );
-      const endDate = new Date(body.endYear, body.endMonth - 1, body.endDay);
+      const startDate = new Date(body.startDate);
+      const endDate = new Date(body.endDate);
 
       if (startDate > endDate) {
         throw new ConflictException(
@@ -138,7 +113,7 @@ export class ReservationRepository {
       return reservations;
     }
 
-    if (!body) {
+    if (!body.endDate && !body.startDate && !body.status) {
       const reservations = await this.reservationRepository.find({
         relations: ['user', 'room'],
       });
@@ -153,66 +128,63 @@ export class ReservationRepository {
   }
 
   async getReservationsRoom(id: string, body?: GetReservationsFiltersDto) {
-    const hasStartDate = body?.startDay || body?.startMonth || body?.startYear;
-    const hasEndDate = body?.endDay || body?.endMonth || body?.endYear;
+    const hasStartDate = body?.startDate;
+    const hasEndDate = body?.endDate;
+
+    if (
+      (body?.startDate && !body?.endDate) ||
+      (!body?.startDate && body?.endDate)
+    ) {
+      throw new ConflictException('Incomplete date information providedAAAA.');
+    }
 
     if (hasStartDate && hasEndDate) {
-      const missingStartDateParts =
-        (body.startDay && (!body.startMonth || !body.startYear)) ||
-        (body.startMonth && (!body.startDay || !body.startYear)) ||
-        (body.startYear && (!body.startDay || !body.startMonth));
+      const query = this.reservationRepository
+        .createQueryBuilder('reservation')
+        .leftJoinAndSelect('reservation.user', 'user')
+        .leftJoinAndSelect('reservation.room', 'room')
+        .where('reservation.room.id = :id', { id });
 
-      const missingEndDateParts =
-        (body.endDay && (!body.endMonth || !body.endYear)) ||
-        (body.endMonth && (!body.endDay || !body.endYear)) ||
-        (body.endYear && (!body.endDay || !body.endMonth));
+      if (hasStartDate && hasEndDate) {
+        const startDate = new Date(body.startDate);
+        const endDate = new Date(body.endDate);
 
-      if (missingStartDateParts || missingEndDateParts) {
-        throw new ConflictException('Incomplete date information provided.');
+        query.andWhere(
+          'reservation.startDate <= :endDate AND reservation.endDate >= :startDate',
+          { startDate, endDate },
+        );
+      }
+
+      const reservations = await query.getMany();
+
+      return reservations;
+    } else {
+      if (!body.endDate && !body.startDate && !body.status) {
+        const reservations = await this.reservationRepository
+          .createQueryBuilder('reservation')
+          .leftJoinAndSelect('reservation.user', 'user')
+          .leftJoinAndSelect('reservation.room', 'room')
+          .where('reservation.room.id = :id', { id })
+          .getMany();
+        return reservations;
+      } else if (body.status) {
+        const reservations = await this.reservationRepository
+          .createQueryBuilder('reservation')
+          .leftJoinAndSelect('reservation.user', 'user')
+          .leftJoinAndSelect('reservation.room', 'room')
+          .where('reservation.room.id = :id', { id })
+          .andWhere('reservation.status = :status', { status: body.status })
+          .getMany();
+        return reservations;
       }
     }
-
-    const query = this.reservationRepository
-      .createQueryBuilder('reservation')
-      .leftJoinAndSelect('reservation.user', 'user')
-      .leftJoinAndSelect('reservation.room', 'room')
-      .where('reservation.room.id = :id', { id });
-
-    if (hasStartDate && hasEndDate) {
-      const startDate = new Date(
-        body.startYear,
-        body.startMonth - 1,
-        body.startDay,
-      );
-      const endDate = new Date(body.endYear, body.endMonth - 1, body.endDay);
-
-      query.andWhere(
-        'reservation.startDate <= :endDate AND reservation.endDate >= :startDate',
-        { startDate, endDate },
-      );
-    }
-
-    const reservations = await query.getMany();
-
-    return reservations;
   }
 
   async checkin(id: string, body: CreateReservationDto) {
     const currentYear = new Date().getFullYear();
 
     const isInvalidDate =
-      body.startYear < currentYear ||
-      body.endYear < currentYear ||
-      body.startMonth < 1 ||
-      body.startMonth > 12 ||
-      body.endMonth < 1 ||
-      body.endMonth > 12 ||
-      body.startDay < 1 ||
-      body.startDay > 31 ||
-      body.endDay < 1 ||
-      body.endDay > 31 ||
-      new Date(body.startYear, body.startMonth - 1, body.startDay).getTime() >
-        new Date(body.endYear, body.endMonth - 1, body.endDay).getTime();
+      !body.startDate || !body.endDate || (body.startDate && !body.endDate);
 
     if (isInvalidDate) {
       throw new ConflictException('Invalid date');
@@ -232,12 +204,8 @@ export class ReservationRepository {
       throw new NotFoundException('Room not found');
     }
 
-    const startDate = new Date(
-      body.startYear,
-      body.startMonth - 1,
-      body.startDay,
-    );
-    const endDate = new Date(body.endYear, body.endMonth - 1, body.endDay);
+    const startDate = new Date(body.startDate);
+    const endDate = new Date(body.endDate);
 
     const days = Math.ceil(
       (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
@@ -274,25 +242,6 @@ export class ReservationRepository {
     }
 
     let totalPrice: number = room.price * days;
-
-    let guestCount: number = 0;
-
-    for (const guest of [body.guestName1, body.guestName2, body.guestName3]) {
-      if (guest) {
-        guestCount++;
-      }
-    }
-
-    const guestPrice = await this.guestPriceRepository.findOne({
-      where: { name: 'guest' },
-    });
-
-    if (!guestPrice) {
-      throw new NotFoundException('Guest price not found');
-    }
-
-    guestCount *= guestPrice.price;
-    totalPrice += guestCount;
 
     // Crear la reserva
     const reservation = this.reservationRepository.create({
@@ -331,13 +280,13 @@ export class ReservationRepository {
     }
 
     const monthlyProfit = await this.monthlyProfitRepository.findOne({
-      where: { year: body.startYear, month: body.startMonth },
+      where: { year: startDate.getFullYear(), month: startDate.getMonth() + 1 },
     });
 
     if (!monthlyProfit) {
       await this.monthlyProfitRepository.save({
-        year: body.startYear,
-        month: body.startMonth,
+        year: startDate.getFullYear(),
+        month: startDate.getMonth() + 1,
         profit: totalPrice,
       });
     } else {
@@ -348,7 +297,7 @@ export class ReservationRepository {
     await this.reservationRepository.save(reservation);
 
     //agregar email reserva
-    await this.emailService.sendReservationemail(user.email, user.name)
+    await this.emailService.sendReservationemail(user.email, user.name);
 
     return reservation;
   }
