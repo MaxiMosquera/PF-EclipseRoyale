@@ -15,6 +15,8 @@ import {
 import { Features } from 'src/entities/features.entity';
 import { Room } from 'src/entities/room.entity';
 import { Service } from 'src/entities/service.entity';
+import { Category } from 'src/enum/room.enums';
+import { roomImages } from 'src/utils/roomsimages';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -170,6 +172,8 @@ export class RoomRepository {
     }
     
     const availableServices = await this.serviceRepository.find({});
+    // Añadir las imágenes correspondientes a la categoría
+    room.images = roomImages[room.category as Category];
 
     return [room, availableServices];
   }

@@ -12,7 +12,7 @@ import { v4 as uuid } from 'uuid';
 import { Reservation } from './reservation.entity';
 import { Features } from './features.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
 @Entity({ name: 'rooms' })
 export class Room {
@@ -38,6 +38,12 @@ export class Room {
   @IsEnum(Category)
   @IsNotEmpty()
   category: Category;
+
+  @ApiProperty({ description: "Room's image" })
+  @Column( 'simple-array', { nullable: true })
+  @IsOptional()
+  @IsString()
+  images?: string[];
 
   @ApiProperty({ description: "Room's reservation ID" })
   @OneToMany(() => Reservation, (reservation) => reservation.room)
