@@ -15,6 +15,8 @@ import {
 import { Features } from 'src/entities/features.entity';
 import { Room } from 'src/entities/room.entity';
 import { Service } from 'src/entities/service.entity';
+import { Category } from 'src/enum/room.enums';
+import { roomImages } from 'src/utils/roomsimages';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -170,6 +172,13 @@ export class RoomRepository {
     }
     
     const availableServices = await this.serviceRepository.find({});
+    
+     // Añadir las imágenes correspondientes a la categoría
+    if (roomImages[room.category as Category]) {
+    room.images = roomImages[room.category as Category];
+   } else {
+    room.images = []; // O manejar el caso donde no haya imágenes
+   }
 
     return [room, availableServices];
   }

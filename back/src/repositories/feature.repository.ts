@@ -19,21 +19,11 @@ export class FeatureRepository implements OnModuleInit {
     @InjectRepository(Features)
     private readonly featureRepository: Repository<Features>,
     @InjectRepository(Room) private readonly roomRepository: Repository<Room>,
-    @InjectRepository(GuestPrice)
-    private readonly guestPriceRepository: Repository<GuestPrice>,
+    
   ) {}
 
   async onModuleInit() {
-    const price = await this.guestPriceRepository.findOneBy({ name: 'guest' });
-
-    if (price) {
-      return;
-    }
-
-    const guestPrice = new GuestPrice();
-    guestPrice.name = 'guest';
-    guestPrice.price = 15;
-    await this.guestPriceRepository.save(guestPrice);
+    
 
     for (const feature of features) {
       const exists = await this.featureRepository.findOneBy({
@@ -80,10 +70,11 @@ export class FeatureRepository implements OnModuleInit {
 
       if (!room) {
         // Si la habitación no existe, crea una nueva
-        room = this.roomRepository.create({
+          room = this.roomRepository.create({
           number: roomData.number,
           price: roomData.price,
           category: roomData.category,
+          images: roomData.images,
           features: foundFeatures, // Usa `foundFeatures` directamente
         });
       } else {
