@@ -59,14 +59,14 @@ export class User {
   adress: string;
 
   @ApiProperty({ description: "User's role", example: 'ADMIN' })
-  @Column({ nullable: false, type: 'enum', enum: Role, default: Role.USER })
+  @Column({ nullable: true, type: 'enum', enum: Role, default: Role.USER })
   @IsNotEmpty()
   @IsEnum(Role)
   role: Role;
 
   @ApiProperty({ description: "User's status", example: 'ACTIVE' })
   @Column({
-    nullable: false,
+    nullable: true,
     type: 'enum',
     enum: Status,
     default: Status.PENDING,
