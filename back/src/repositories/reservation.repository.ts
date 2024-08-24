@@ -15,6 +15,7 @@ import { Room } from 'src/entities/room.entity';
 import { ReservationService } from 'src/entities/s-r.entity';
 import { Service } from 'src/entities/service.entity';
 import { User } from 'src/entities/user.entity';
+import { MailService } from 'src/services/mail.service';
 import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 
 @Injectable()
@@ -32,6 +33,7 @@ export class ReservationRepository {
     private readonly reservationServiceRepository: Repository<ReservationService>,
     @InjectRepository(GuestPrice)
     private readonly guestPriceRepository: Repository<GuestPrice>,
+    private readonly emailService: MailService,
   ) {}
 
   async getReservations(id: string, body?: GetReservationsFiltersDto) {
@@ -344,6 +346,9 @@ export class ReservationRepository {
     }
     reservation.price = totalPrice;
     await this.reservationRepository.save(reservation);
+
+    //agregar email reserva
+    await this.emailService.sendReservationemail(user.email, user.name)
 
     return reservation;
   }
