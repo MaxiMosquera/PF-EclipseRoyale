@@ -50,17 +50,7 @@ export class RoomRepository {
     const parameters: any = {};
 
     if (body) {
-      const {
-        category,
-        minPrice,
-        maxPrice,
-        startDay,
-        startMonth,
-        startYear,
-        endDay,
-        endMonth,
-        endYear,
-      } = body;
+      const { category, minPrice, maxPrice, startingDate, endingDate } = body;
 
       if (category) {
         conditions.push('room.category = :category');
@@ -93,16 +83,12 @@ export class RoomRepository {
         );
       }
 
-      const hasStartDate =
-        startDay !== undefined &&
-        startMonth !== undefined &&
-        startYear !== undefined;
-      const hasEndDate =
-        endDay !== undefined && endMonth !== undefined && endYear !== undefined;
+      const hasStartDate = startingDate !== undefined;
+      const hasEndDate = endingDate !== undefined;
 
       if (hasStartDate && hasEndDate) {
-        const startDate = new Date(startYear, startMonth - 1, startDay);
-        const endDate = new Date(endYear, endMonth - 1, endDay);
+        const startDate = new Date(startingDate);
+        const endDate = new Date(endingDate);
 
         if (startDate > endDate) {
           throw new ConflictException('Start date cannot be after end date.');
@@ -170,15 +156,15 @@ export class RoomRepository {
     if (!room) {
       throw new NotFoundException(`Room with ID ${id} not found`);
     }
-    
+
     const availableServices = await this.serviceRepository.find({});
-    
-     // Añadir las imágenes correspondientes a la categoría
+
+    // Añadir las imágenes correspondientes a la categoría
     if (roomImages[room.category as Category]) {
-    room.images = roomImages[room.category as Category];
-   } else {
-    room.images = []; // O manejar el caso donde no haya imágenes
-   }
+      room.images = roomImages[room.category as Category];
+    } else {
+      room.images = []; // O manejar el caso donde no haya imágenes
+    }
 
     return [room, availableServices];
   }
