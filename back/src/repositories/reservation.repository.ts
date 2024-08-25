@@ -39,32 +39,41 @@ export class ReservationRepository {
   async getReservations(id: string, body?: GetReservationsFiltersDto) {
     const hasStartDate = body?.startDate;
     const hasEndDate = body?.endDate;
+    const hasStatus = body?.status;
+
     if (
       (body?.startDate && !body?.endDate) ||
       (!body?.startDate && body?.endDate)
     ) {
-      throw new ConflictException('Incomplete date information providedAAAA.');
+      throw new ConflictException('Incomplete date information provided.');
     }
 
-    if (hasStartDate || hasEndDate) {
-      const startDate = new Date(body.startDate);
-      const endDate = new Date(body.startDate);
+    if (hasStartDate || hasEndDate || hasStatus) {
+      const query = this.reservationRepository
+        .createQueryBuilder('reservation')
+        .where('reservation.user = :id', { id });
 
-      if (startDate > endDate) {
-        throw new ConflictException(
-          'Start date cannot be later than end date.',
+      if (hasStartDate && hasEndDate) {
+        const startDate = new Date(body.startDate);
+        const endDate = new Date(body.endDate);
+
+        if (startDate > endDate) {
+          throw new ConflictException(
+            'Start date cannot be later than end date.',
+          );
+        }
+
+        query.andWhere(
+          'reservation.startDate <= :endDate AND reservation.endDate >= :startDate',
+          { startDate, endDate },
         );
       }
 
-      const reservations = await this.reservationRepository
-        .createQueryBuilder('reservation')
-        .where('reservation.user = :id', { id })
-        .andWhere(
-          'reservation.startDate <= :endDate AND reservation.endDate >= :startDate',
-          { startDate, endDate },
-        )
-        .getMany();
+      if (hasStatus) {
+        query.andWhere('reservation.status = :status', { status: body.status });
+      }
 
+      const reservations = await query.getMany();
       return reservations;
     }
 
@@ -84,12 +93,15 @@ export class ReservationRepository {
   async getAllReservations(body?: GetReservationsFiltersDto) {
     const hasStartDate = body?.startDate;
     const hasEndDate = body?.endDate;
+    const hasStatus = body?.status;
+
     if (
       (body?.startDate && !body?.endDate) ||
       (!body?.startDate && body?.endDate)
     ) {
-      throw new ConflictException('Incomplete date information providedAAAA.');
+      throw new ConflictException('Incomplete date information provided.');
     }
+
     if (hasStartDate || hasEndDate) {
       const startDate = new Date(body.startDate);
       const endDate = new Date(body.endDate);
@@ -100,16 +112,20 @@ export class ReservationRepository {
         );
       }
 
-      const reservations = await this.reservationRepository
+      const query = this.reservationRepository
         .createQueryBuilder('reservation')
         .leftJoinAndSelect('reservation.user', 'user')
         .leftJoinAndSelect('reservation.room', 'room')
         .where(
-          'reservation.startDate <= :endDate AND reservation.endDate >= :startDate',
+          'reservation.startDate < :endDate AND reservation.endDate > :startDate',
           { startDate, endDate },
-        )
-        .getMany();
+        );
 
+      if (hasStatus) {
+        query.andWhere('reservation.status = :status', { status: body.status });
+      }
+
+      const reservations = await query.getMany();
       return reservations;
     }
 
@@ -118,7 +134,7 @@ export class ReservationRepository {
         relations: ['user', 'room'],
       });
       return reservations;
-    } else if (body.status) {
+    } else if (body.status && !hasEndDate && !hasStartDate) {
       const reservations = await this.reservationRepository.find({
         where: { status: body.status },
         relations: ['user', 'room'],
@@ -130,15 +146,16 @@ export class ReservationRepository {
   async getReservationsRoom(id: string, body?: GetReservationsFiltersDto) {
     const hasStartDate = body?.startDate;
     const hasEndDate = body?.endDate;
+    const hasStatus = body?.status;
 
     if (
       (body?.startDate && !body?.endDate) ||
       (!body?.startDate && body?.endDate)
     ) {
-      throw new ConflictException('Incomplete date information providedAAAA.');
+      throw new ConflictException('Incomplete date information provided.');
     }
 
-    if (hasStartDate && hasEndDate) {
+    if (hasStartDate || hasEndDate || hasStatus) {
       const query = this.reservationRepository
         .createQueryBuilder('reservation')
         .leftJoinAndSelect('reservation.user', 'user')
@@ -149,14 +166,23 @@ export class ReservationRepository {
         const startDate = new Date(body.startDate);
         const endDate = new Date(body.endDate);
 
+        if (startDate > endDate) {
+          throw new ConflictException(
+            'Start date cannot be later than end date.',
+          );
+        }
+
         query.andWhere(
-          'reservation.startDate <= :endDate AND reservation.endDate >= :startDate',
+          'reservation.startDate < :endDate AND reservation.endDate > :startDate',
           { startDate, endDate },
         );
       }
 
-      const reservations = await query.getMany();
+      if (hasStatus) {
+        query.andWhere('reservation.status = :status', { status: body.status });
+      }
 
+      const reservations = await query.getMany();
       return reservations;
     } else {
       if (!body.endDate && !body.startDate && !body.status) {
@@ -181,8 +207,6 @@ export class ReservationRepository {
   }
 
   async checkin(id: string, body: CreateReservationDto) {
-    const currentYear = new Date().getFullYear();
-
     const isInvalidDate =
       !body.startDate || !body.endDate || (body.startDate && !body.endDate);
 

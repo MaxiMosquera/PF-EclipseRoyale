@@ -79,7 +79,7 @@ export class FilterRoomsDto {
   })
   @IsInt()
   @IsOptional()
-  startingDate?: Date;
+  startingDate?: string;
 
   @ApiProperty({
     description: 'Available end date of the reservation',
@@ -87,7 +87,7 @@ export class FilterRoomsDto {
   })
   @IsInt()
   @IsOptional()
-  endingDate?: Date;
+  endingDate?: string;
 
   @ApiPropertyOptional({ description: 'Category of the room', enum: Category })
   @IsOptional()

@@ -7,6 +7,7 @@ import {
   IsUUID,
   IsInt,
 } from 'class-validator';
+import { Status } from 'src/enum/reservationHistory.enums';
 import { Type } from 'src/enum/service.enums';
 
 export class CreateReservationDto {
@@ -81,7 +82,7 @@ export class GetReservationsFiltersDto {
   })
   @IsOptional()
   @IsString()
-  status?: string;
+  status?: Status;
 
   @ApiProperty({
     description: 'Start Date of the reservation',
@@ -89,7 +90,7 @@ export class GetReservationsFiltersDto {
   })
   @IsInt()
   @IsNotEmpty()
-  startDate: Date;
+  startDate: string;
 
   @ApiProperty({
     description: 'End Date of the reservation',
@@ -97,5 +98,5 @@ export class GetReservationsFiltersDto {
   })
   @IsInt()
   @IsNotEmpty()
-  endDate: Date;
+  endDate: string;
 }

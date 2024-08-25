@@ -6,6 +6,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import {
@@ -32,9 +33,9 @@ export class ReservationController {
   @Get('getReservations/:id') // user id
   async getReservations(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() body?: GetReservationsFiltersDto,
+    @Query() filters?: GetReservationsFiltersDto,
   ) {
-    return await this.reservationRepository.getReservations(id, body);
+    return await this.reservationRepository.getReservations(id, filters);
   }
 
   @ApiOperation({
@@ -42,8 +43,8 @@ export class ReservationController {
     description: 'Retrieve all reservations with optional filters.',
   })
   @Get('getReservations')
-  async getReservationsAll(@Body() body?: GetReservationsFiltersDto) {
-    return await this.reservationRepository.getAllReservations(body);
+  async getReservationsAll(@Query() filters?: GetReservationsFiltersDto) {
+    return await this.reservationRepository.getAllReservations(filters);
   }
 
   @ApiOperation({
@@ -59,9 +60,9 @@ export class ReservationController {
   @Get('getReservationsRoom/:id')
   async getReservationsRoom(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() body?: GetReservationsFiltersDto,
+    @Query() filters?: GetReservationsFiltersDto,
   ) {
-    return await this.reservationRepository.getReservationsRoom(id, body);
+    return await this.reservationRepository.getReservationsRoom(id, filters);
   }
 
   @ApiOperation({
