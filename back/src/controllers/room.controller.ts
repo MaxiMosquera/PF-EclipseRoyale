@@ -30,6 +30,7 @@ import {
 } from 'src/dtos/responses.dtos/roomResponses.dtos';
 import { RoomRepository } from 'src/repositories/room.repository';
 import { Room } from 'src/entities/room.entity';
+import { Category } from 'src/enum/room.enums';
 
 @ApiTags('Rooms')
 @Controller('room')
@@ -62,12 +63,25 @@ export class RoomController {
   })
   @ApiResponse(getAllRoomsApiResponse)
   @Get('getAllRooms')
+  @Get('getAllRooms')
   async getAllRooms(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
-    @Body() body?: FilterRoomsDto,
+    @Query('category') category?: Category,
+    @Query('maxPrice') maxPrice?: number,
+    @Query('minPrice') minPrice?: number,
+    @Query('startingDate') startingDate?: string,
+    @Query('endingDate') endingDate?: string,
   ): Promise<any> {
-    return await this.roomRepository.getAllRooms(page, limit, body);
+    const filters = {
+      category,
+      minPrice,
+      maxPrice,
+      startingDate,
+      endingDate,
+    };
+
+    return await this.roomRepository.getAllRooms(page, limit, filters);
   }
 
   @ApiOperation({

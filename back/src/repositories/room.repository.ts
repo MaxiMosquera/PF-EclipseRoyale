@@ -32,7 +32,7 @@ export class RoomRepository {
   async getAllRooms(
     page: number,
     limit: number,
-    body?: FilterRoomsDto,
+    filters?: FilterRoomsDto,
   ): Promise<any> {
     if (page <= 0) {
       throw new ConflictException('Page number must be greater than 0.');
@@ -49,37 +49,46 @@ export class RoomRepository {
     const conditions: any = [];
     const parameters: any = {};
 
-    if (body) {
-      const { category, minPrice, maxPrice, startingDate, endingDate } = body;
+    if (filters) {
+      const { category, minPrice, maxPrice, startingDate, endingDate } =
+        filters;
 
       if (category) {
         conditions.push('room.category = :category');
         parameters['category'] = category;
       }
 
-      if (minPrice !== undefined) {
-        if (minPrice < 0) {
-          throw new ConflictException('MinPrice cannot be negative.');
+      const minPriceNumber =
+        minPrice !== undefined ? Number(minPrice) : undefined;
+      const maxPriceNumber =
+        maxPrice !== undefined ? Number(maxPrice) : undefined;
+
+      if (minPriceNumber !== undefined) {
+        if (minPriceNumber < 0) {
+          throw new ConflictException('minPriceNumber cannot be negative.');
         }
-        conditions.push('room.price >= :minPrice');
-        parameters['minPrice'] = minPrice;
+        conditions.push('room.price >= :minPriceNumber');
+        parameters['minPriceNumber'] = minPriceNumber;
       }
 
-      if (maxPrice !== undefined) {
-        if (maxPrice < 0) {
-          throw new ConflictException('MaxPrice cannot be negative.');
+      if (maxPriceNumber !== undefined) {
+        if (maxPriceNumber < 0) {
+          throw new ConflictException('maxPriceNumber cannot be negative.');
         }
-        conditions.push('room.price <= :maxPrice');
-        parameters['maxPrice'] = maxPrice;
+        conditions.push('room.price <= :maxPriceNumber');
+        parameters['maxPriceNumber'] = maxPriceNumber;
       }
+
+      console.log(minPriceNumber);
+      console.log(maxPriceNumber);
 
       if (
-        minPrice !== undefined &&
-        maxPrice !== undefined &&
-        minPrice > maxPrice
+        minPriceNumber !== undefined &&
+        maxPriceNumber !== undefined &&
+        minPriceNumber > maxPriceNumber
       ) {
         throw new ConflictException(
-          'MinPrice cannot be greater than MaxPrice.',
+          'minPriceNumber cannot be greater than maxPriceNumber.',
         );
       }
 
