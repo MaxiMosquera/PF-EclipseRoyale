@@ -15,6 +15,8 @@ import { Room } from 'src/entities/room.entity';
 import { ReservationService } from 'src/entities/s-r.entity';
 import { Service } from 'src/entities/service.entity';
 import { User } from 'src/entities/user.entity';
+import { ReservationStatus } from 'src/enum/reservationStatus.enums';
+import { Type } from 'src/enum/service.enums';
 import { MailService } from 'src/services/mail.service';
 import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 
@@ -214,6 +216,20 @@ export class ReservationRepository {
       throw new ConflictException('Invalid date');
     }
 
+    if (body.services) {
+      body.services = body.services.map(service => {
+        const lowerCaseService = service.toLowerCase(); // Convertir a minúsculas
+        const enumValue = Object.values(Type).find(
+          value => value === lowerCaseService,
+        );
+  
+        if (!enumValue) {
+          throw new ConflictException(`Invalid service type: ${service}`);
+        }
+        return enumValue as Type;
+      });
+    }
+
     const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
@@ -242,7 +258,7 @@ export class ReservationRepository {
     }
 
     const actuallyActiveReservation = await this.reservationRepository.findOne({
-      where: { user: user, status: 'active' },
+      where: { user: user, status: ReservationStatus.IN_PROGRESS},
     });
 
     if (actuallyActiveReservation) {
@@ -335,11 +351,11 @@ export class ReservationRepository {
       throw new NotFoundException('Reservation not found');
     }
 
-    if (reservation.status === 'finished') {
+    if (reservation.status === "completed") {
       throw new ConflictException('Reservation already finished');
     }
 
-    reservation.status = 'finished';
+    reservation.status = ReservationStatus.COMPLETED
     await this.reservationRepository.save(reservation);
 
     return reservation;

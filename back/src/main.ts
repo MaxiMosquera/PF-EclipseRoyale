@@ -14,6 +14,13 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);
+
+  app.enableCors({
+    origin: ['http://localhost:3001', 'https://front-hotel-app-g8u2.vercel.app'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
   await app.listen(3000);
+
 }
 bootstrap();

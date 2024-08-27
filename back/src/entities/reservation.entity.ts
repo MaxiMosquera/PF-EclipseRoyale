@@ -18,6 +18,7 @@ import {
 } from 'class-validator';
 import { ReservationService } from './s-r.entity';
 import { v4 as uuid } from 'uuid';
+import { ReservationStatus } from 'src/enum/reservationStatus.enums';
 
 @Entity({ name: 'reservations' })
 export class Reservation {
@@ -36,18 +37,14 @@ export class Reservation {
   @Column({ nullable: false, type: 'date' })
   startDate: Date;
 
-  @ApiProperty({
-    description:
-      'The status of the reservation. Can be either "active" or "finished".',
-    enum: ['active', 'finished'],
-  })
+  @ApiProperty({ description: 'The status of the reservation.' })
   @Column({
-    nullable: false,
     type: 'enum',
-    enum: ['active', 'finished'],
-    default: 'active',
+    enum: ReservationStatus,
+    default: ReservationStatus.PENDING,
   })
-  status: string;
+  status: ReservationStatus
+  
 
   @ApiProperty({ description: 'The end date of the reservation.' })
   @Column({ nullable: false, type: 'date' })
@@ -100,6 +97,9 @@ export class Reservation {
   @IsOptional()
   @IsString()
   guestLastName4?: string;
+ 
+
+  
 
   @ApiProperty({ description: 'The user who made the reservation.' })
   @ManyToOne(() => User, (user) => user.reservations)

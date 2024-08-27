@@ -7,8 +7,9 @@ import {
   IsUUID,
   IsInt,
 } from 'class-validator';
-import { Status } from 'src/enum/reservationHistory.enums';
+import { ReservationStatus } from 'src/enum/reservationStatus.enums';
 import { Type } from 'src/enum/service.enums';
+
 
 export class CreateReservationDto {
   @ApiProperty({
@@ -44,6 +45,7 @@ export class CreateReservationDto {
   @IsNotEmpty()
   endDate: Date;
 
+
   @ApiPropertyOptional({ description: 'First name of the first guest' })
   @IsOptional()
   @IsString()
@@ -73,16 +75,27 @@ export class CreateReservationDto {
   @IsOptional()
   @IsString()
   guestLastName3?: string;
-}
 
-export class GetReservationsFiltersDto {
-  @ApiPropertyOptional({
-    description: 'Status of the reservation',
-    example: 'active',
+  @ApiPropertyOptional({ 
+    description: 'Status of the reservation', 
+    enum: ReservationStatus, 
+    default: ReservationStatus.PENDING 
   })
   @IsOptional()
-  @IsString()
-  status?: Status;
+  @IsEnum(ReservationStatus)
+  status?: ReservationStatus;
+}
+
+
+export class GetReservationsFiltersDto {
+  @ApiPropertyOptional({ 
+    description: 'Status of the reservation', 
+    enum: ReservationStatus, 
+    default: ReservationStatus.PENDING 
+  })
+  @IsOptional()
+  @IsEnum(ReservationStatus)
+  status?: ReservationStatus;
 
   @ApiProperty({
     description: 'Start Date of the reservation',
