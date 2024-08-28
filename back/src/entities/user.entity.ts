@@ -30,10 +30,10 @@ export class User {
   name: string;
 
   @ApiProperty({ description: "User's phone number", example: '1234567890' })
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
-  @Column({ nullable: false, type: 'int' })
-  phone: number;
+  @Column({ nullable: true, type: 'int' })
+  phone?: number;
 
   @ApiProperty({ description: "User's email", example: 'qkDp8@example.com' })
   @IsEmail()
@@ -42,10 +42,10 @@ export class User {
   email: string;
 
   @ApiProperty({ description: "User's password", example: '1234567890' })
-  @IsNotEmpty()
+  @IsOptional()
   @IsStrongPassword()
   @Column({ nullable: false, type: 'varchar' })
-  password: string;
+  password?: string;
 
   @ApiPropertyOptional({ description: "User's image", example: 'image.png' })
   @IsOptional()
