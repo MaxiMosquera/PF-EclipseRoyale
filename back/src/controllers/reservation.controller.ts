@@ -43,8 +43,16 @@ export class ReservationController {
     description: 'Retrieve all reservations with optional filters.',
   })
   @Get('getReservations')
-  async getReservationsAll(@Query() filters?: GetReservationsFiltersDto) {
-    return await this.reservationRepository.getAllReservations(filters);
+  async getReservationsAll(
+    @Query() filters?: GetReservationsFiltersDto,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return await this.reservationRepository.getAllReservations(
+      filters,
+      page,
+      limit,
+    );
   }
 
   @ApiOperation({

@@ -89,10 +89,10 @@ export class FilterRoomsDto {
   @IsOptional()
   endingDate?: string;
 
-  @ApiPropertyOptional({ description: 'Category of the room', enum: Category })
+  @ApiPropertyOptional({ description: 'number of category', example: '1' })
   @IsOptional()
-  @IsEnum(Category)
-  category?: Category;
+  @IsInt()
+  category?: string;
 
   @ApiPropertyOptional({
     description: 'Minimum price of the room',
