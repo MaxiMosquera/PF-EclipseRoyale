@@ -14,9 +14,9 @@ export class MercadoPagoController {
   }
 
   @Get('success/:id')
-  success(@Res() res, @Param('id') id ){
+  async success(@Res() res, @Param('id') id ){
     console.log('success');
-    this.reservationRepository.changestatusToPaid(id)
+    await this.reservationRepository.changestatusToPaid(id)
     res.redirect('https://front-hotel-app-g8u2.vercel.app//payOk');
   }
 
