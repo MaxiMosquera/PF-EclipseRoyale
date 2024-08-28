@@ -21,6 +21,7 @@ import { MailService } from 'src/services/mail.service';
       MonthlyProfit,
       ReservationService,
       GuestPrice,
+
     ]),
   ],
   controllers: [ReservationController],

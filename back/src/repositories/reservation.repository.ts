@@ -372,4 +372,23 @@ export class ReservationRepository {
 
     return reservation;
   }
+
+  async changestatusToPaid(id: string) {
+    const reservation = await this.reservationRepository.findOne({
+      where: { id },
+    });
+
+    if (!reservation) {
+      throw new NotFoundException('Reservation not found');
+    }
+
+    if (reservation.status === 'completed') {
+      throw new ConflictException('Reservation already finished');
+    }
+
+    reservation.status = ReservationStatus.PAID;
+    await this.reservationRepository.save(reservation);
+
+    return reservation;
+  }
 }

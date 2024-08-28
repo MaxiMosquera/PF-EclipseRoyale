@@ -16,6 +16,8 @@ import { MonthlyProfit } from 'src/entities/monthlyProfit.entity';
 import { ReservationService } from 'src/entities/s-r.entity';
 import { GuestPrice } from 'src/entities/guestPrice.entity';
 import { MailService } from 'src/services/mail.service';
+import { MercadoPagoService } from 'src/services/mercadoPago.service';
+import { ReservationRepository } from 'src/repositories/reservation.repository';
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { MailService } from 'src/services/mail.service';
     FeatureRepository,
     CloudinaryService,
     CloudinaryConfig,
+    MercadoPagoService,
+    ReservationRepository
   ],
 })
 export class CloudinaryModule {}
