@@ -17,12 +17,12 @@ export class MercadoPagoController {
   async success(@Res() res, @Param('id', ParseUUIDPipe) id : string) {
     console.log('success');
     await this.reservationRepository.changestatusToPaid(id)
-    res.redirect('https://front-hotel-app-g8u2.vercel.app//payOk');
+    res.redirect('https://front-hotel-app-g8u2.vercel.app/payOk');
   }
 
   @Get('failure')
   failure(@Res() res) {
     console.log('failure');
-    res.redirect('https://front-hotel-app-g8u2.vercel.app//payWrong');
+    res.redirect('https://front-hotel-app-g8u2.vercel.app/payWrong');
   }
 }
