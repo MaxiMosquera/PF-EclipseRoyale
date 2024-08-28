@@ -21,9 +21,11 @@ import { MailService } from 'src/services/mail.service';
       MonthlyProfit,
       ReservationService,
       GuestPrice,
+
     ]),
   ],
   controllers: [ReservationController],
   providers: [ReservationRepository, MailService],
+  exports: [ReservationRepository],
 })
 export class ReservationModule {}

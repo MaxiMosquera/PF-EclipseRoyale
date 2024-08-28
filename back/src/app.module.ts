@@ -14,6 +14,7 @@ import { CloudinaryModule } from './modules/cloudinary.module';
 import { ReservationModule } from './modules/reservation.module';
 import { MailService } from './services/mail.service';
 import { MailModule } from './modules/mail.module';
+import { MercadopagoModule } from './modules/mercadoPago.module';
 // import { CloudinaryModule } from './modules/cloudinary.module';
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { MailModule } from './modules/mail.module';
     CloudinaryModule,
     ReservationModule,
     MailModule,
+    MercadopagoModule
   ],
   controllers: [AppController],
   providers: [AppService],

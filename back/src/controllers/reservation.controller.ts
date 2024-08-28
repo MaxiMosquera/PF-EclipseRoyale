@@ -83,7 +83,7 @@ export class ReservationController {
     description: 'UUID of the user for whom the reservation is to be created',
     type: String,
   })
-  @Post('createReservation/:id') // user id
+  @Post('create-reservation/:id') // user id
   async checkin(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: CreateReservationDto,
