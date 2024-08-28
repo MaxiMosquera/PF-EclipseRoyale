@@ -34,12 +34,12 @@ export class AuthRepository {
     });
     await this.userRepository.save(user);
 
-    await this.mailService.sendUserConfirmation(user.email);
+    await this.mailService.sendUserConfirmation(user);
 
     return user;
   }
 
-  async createJwtToken(user: any): Promise<string> {
+  async createJwtToken(user: User): Promise<string> {
     const payload: any = {
       id: user.id,
       email: user.email,
@@ -54,13 +54,13 @@ export class AuthRepository {
   ): Promise<{ message: string; token: string }> {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
-      throw new NotFoundException('invalid email');
+      throw new NotFoundException('Invalid email');
     }
 
     const validatePassword = await bcrypt.compare(password, user.password);
 
     if (!validatePassword) {
-      throw new NotFoundException('invalid password');
+      throw new NotFoundException('Invalid password');
     }
 
     const token: string = await this.createJwtToken(user);
@@ -68,5 +68,38 @@ export class AuthRepository {
       message: 'Login successful',
       token,
     };
+  }
+
+  async googleLogin(
+    profile: any,
+  ): Promise<{ createdUser: User; isNew: boolean }> {
+    const { email, firstName, lastName, picture } = profile;
+
+    // Check if the user exists
+    let user = await this.userRepository.findOne({ where: { email } });
+
+    // If user does not exist, create a new user
+    if (!user) {
+      const adress = '';
+      user = this.userRepository.create({
+        email,
+        name: `${firstName} ${lastName}`,
+        image: picture,
+        password: '', // You may or may not use this depending on your use case
+        adress: adress,
+      });
+      await this.userRepository.save(user);
+      return { createdUser: user, isNew: true };
+    }
+
+    return { createdUser: user, isNew: false };
+  }
+
+  async sendEmail(user: User): Promise<void> {
+    await this.mailService.sendUserConfirmationGoogle(user);
+  }
+
+  async findByEmail(email: any) {
+    return this.userRepository.findOne({ where: { email } });
   }
 }
