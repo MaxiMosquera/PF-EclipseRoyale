@@ -15,14 +15,16 @@ export class MercadoPagoService {
         number: item.number,//numero de habitacion
         unit_price: item.unit_price, // precio de la reservacion
         quantity: item.quantity, //numero de habitaciones
-      })),
+      }))
+      ,
+      
       back_urls: {
-        success: "https://pf-eclipseroyale.onrender.com/success",
-        failure: "https://pf-eclipseroyale.onrender.com/failure",
+        success: `https://pf-eclipseroyale.onrender.com/success/${body[0].id}`,
+        failure: `https://pf-eclipseroyale.onrender.com/failure/${body[0].id}`,
       },
       auto_return: 'approved',
     };
-
+    console.log("estoy aca")
     try {
       const response = await preference.create({body: preferenceData });
       return { preferenceId: response.id }

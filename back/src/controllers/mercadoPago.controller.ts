@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Res } from '@nestjs/common';
 import { ReservationRepository } from 'src/repositories/reservation.repository';
 import { MercadoPagoService } from 'src/services/mercadoPago.service';
 
@@ -14,7 +14,7 @@ export class MercadoPagoController {
   }
 
   @Get('success/:id')
-  async success(@Res() res, @Param('id') id ){
+  async success(@Res() res, @Param('id', ParseUUIDPipe) id : string) {
     console.log('success');
     await this.reservationRepository.changestatusToPaid(id)
     res.redirect('https://front-hotel-app-g8u2.vercel.app//payOk');
