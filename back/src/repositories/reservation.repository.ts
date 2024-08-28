@@ -92,21 +92,34 @@ export class ReservationRepository {
     }
   }
 
-  async getAllReservations(body?: GetReservationsFiltersDto) {
-    const hasStartDate = body?.startDate;
-    const hasEndDate = body?.endDate;
-    const hasStatus = body?.status;
+  async getAllReservations(
+    filters?: GetReservationsFiltersDto,
+    page?: number,
+    limit?: number,
+  ): Promise<any> {
+    // Calcular el offset para la paginación
+    const offset = page && limit ? (page - 1) * limit : undefined;
+
+    const hasStartDate = filters?.startDate;
+    const hasEndDate = filters?.endDate;
+    const hasStatus = filters?.status;
 
     if (
-      (body?.startDate && !body?.endDate) ||
-      (!body?.startDate && body?.endDate)
+      (filters?.startDate && !filters?.endDate) ||
+      (!filters?.startDate && filters?.endDate)
     ) {
       throw new ConflictException('Incomplete date information provided.');
     }
 
+    let query = this.reservationRepository
+      .createQueryBuilder('reservation')
+      .leftJoinAndSelect('reservation.user', 'user')
+      .leftJoinAndSelect('reservation.room', 'room');
+
+    // Filtro por fecha
     if (hasStartDate || hasEndDate) {
-      const startDate = new Date(body.startDate);
-      const endDate = new Date(body.endDate);
+      const startDate = new Date(filters.startDate);
+      const endDate = new Date(filters.endDate);
 
       if (startDate > endDate) {
         throw new ConflictException(
@@ -114,45 +127,42 @@ export class ReservationRepository {
         );
       }
 
-      const query = this.reservationRepository
-        .createQueryBuilder('reservation')
-        .leftJoinAndSelect('reservation.user', 'user')
-        .leftJoinAndSelect('reservation.room', 'room')
-        .where(
-          'reservation.startDate < :endDate AND reservation.endDate > :startDate',
-          { startDate, endDate },
-        );
-
-      if (hasStatus) {
-        query.andWhere('reservation.status = :status', { status: body.status });
-      }
-
-      const reservations = await query.getMany();
-      return reservations;
+      query = query.where(
+        'reservation.startDate < :endDate AND reservation.endDate > :startDate',
+        { startDate, endDate },
+      );
     }
 
-    if (!body.endDate && !body.startDate && !body.status) {
-      const reservations = await this.reservationRepository.find({
-        relations: ['user', 'room'],
+    // Filtro por estado
+    if (hasStatus) {
+      query = query.andWhere('reservation.status = :status', {
+        status: filters.status,
       });
-      return reservations;
-    } else if (body.status && !hasEndDate && !hasStartDate) {
-      const reservations = await this.reservationRepository.find({
-        where: { status: body.status },
-        relations: ['user', 'room'],
-      });
-      return reservations;
     }
+
+    // Aplicar paginación si los parámetros están presentes
+    if (offset !== undefined && limit !== undefined) {
+      query = query.skip(offset).take(limit);
+    }
+
+    const [reservations, total] = await query.getManyAndCount();
+
+    return {
+      data: reservations,
+      total,
+      currentPage: page || 1,
+      totalPages: limit ? Math.ceil(total / limit) : 1,
+    };
   }
 
-  async getReservationsRoom(id: string, body?: GetReservationsFiltersDto) {
-    const hasStartDate = body?.startDate;
-    const hasEndDate = body?.endDate;
-    const hasStatus = body?.status;
+  async getReservationsRoom(id: string, filters?: GetReservationsFiltersDto) {
+    const hasStartDate = filters?.startDate;
+    const hasEndDate = filters?.endDate;
+    const hasStatus = filters?.status;
 
     if (
-      (body?.startDate && !body?.endDate) ||
-      (!body?.startDate && body?.endDate)
+      (filters?.startDate && !filters?.endDate) ||
+      (!filters?.startDate && filters?.endDate)
     ) {
       throw new ConflictException('Incomplete date information provided.');
     }
@@ -165,8 +175,8 @@ export class ReservationRepository {
         .where('reservation.room.id = :id', { id });
 
       if (hasStartDate && hasEndDate) {
-        const startDate = new Date(body.startDate);
-        const endDate = new Date(body.endDate);
+        const startDate = new Date(filters.startDate);
+        const endDate = new Date(filters.endDate);
 
         if (startDate > endDate) {
           throw new ConflictException(
@@ -181,13 +191,15 @@ export class ReservationRepository {
       }
 
       if (hasStatus) {
-        query.andWhere('reservation.status = :status', { status: body.status });
+        query.andWhere('reservation.status = :status', {
+          status: filters.status,
+        });
       }
 
       const reservations = await query.getMany();
       return reservations;
     } else {
-      if (!body.endDate && !body.startDate && !body.status) {
+      if (!filters.endDate && !filters.startDate && !filters.status) {
         const reservations = await this.reservationRepository
           .createQueryBuilder('reservation')
           .leftJoinAndSelect('reservation.user', 'user')
@@ -195,13 +207,13 @@ export class ReservationRepository {
           .where('reservation.room.id = :id', { id })
           .getMany();
         return reservations;
-      } else if (body.status) {
+      } else if (filters.status) {
         const reservations = await this.reservationRepository
           .createQueryBuilder('reservation')
           .leftJoinAndSelect('reservation.user', 'user')
           .leftJoinAndSelect('reservation.room', 'room')
           .where('reservation.room.id = :id', { id })
-          .andWhere('reservation.status = :status', { status: body.status })
+          .andWhere('reservation.status = :status', { status: filters.status })
           .getMany();
         return reservations;
       }
@@ -217,12 +229,12 @@ export class ReservationRepository {
     }
 
     if (body.services) {
-      body.services = body.services.map(service => {
+      body.services = body.services.map((service) => {
         const lowerCaseService = service.toLowerCase(); // Convertir a minúsculas
         const enumValue = Object.values(Type).find(
-          value => value === lowerCaseService,
+          (value) => value === lowerCaseService,
         );
-  
+
         if (!enumValue) {
           throw new ConflictException(`Invalid service type: ${service}`);
         }
@@ -258,7 +270,7 @@ export class ReservationRepository {
     }
 
     const actuallyActiveReservation = await this.reservationRepository.findOne({
-      where: { user: user, status: ReservationStatus.IN_PROGRESS},
+      where: { user: user, status: ReservationStatus.IN_PROGRESS },
     });
 
     if (actuallyActiveReservation) {
@@ -351,11 +363,11 @@ export class ReservationRepository {
       throw new NotFoundException('Reservation not found');
     }
 
-    if (reservation.status === "completed") {
+    if (reservation.status === 'completed') {
       throw new ConflictException('Reservation already finished');
     }
 
-    reservation.status = ReservationStatus.COMPLETED
+    reservation.status = ReservationStatus.COMPLETED;
     await this.reservationRepository.save(reservation);
 
     return reservation;

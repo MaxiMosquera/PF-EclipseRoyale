@@ -67,7 +67,7 @@ export class RoomController {
   async getAllRooms(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
-    @Query('category') category?: Category,
+    @Query('category') category?: string,
     @Query('maxPrice') maxPrice?: number,
     @Query('minPrice') minPrice?: number,
     @Query('startingDate') startingDate?: string,

@@ -50,12 +50,33 @@ export class RoomRepository {
     const parameters: any = {};
 
     if (filters) {
-      const { category, minPrice, maxPrice, startingDate, endingDate } =
+      const { minPrice, maxPrice, startingDate, endingDate, category } =
         filters;
 
-      if (category) {
-        conditions.push('room.category = :category');
-        parameters['category'] = category;
+      // Convertir el valor de category a número
+      const categoryNumber = category ? Number(category) : undefined;
+
+      if (categoryNumber) {
+        switch (categoryNumber) {
+          case 1:
+          case 2:
+            conditions.push(
+              '(room.category = :suite OR room.category = :suitePremium)',
+            );
+            parameters['suite'] = Category.SUITE;
+            parameters['suitePremium'] = Category.SUITE_PREMIUM;
+            break;
+          case 3:
+          case 4:
+            conditions.push(
+              '(room.category = :loft OR room.category = :loftPremium)',
+            );
+            parameters['loft'] = Category.LOFT;
+            parameters['loftPremium'] = Category.LOFT_PREMIUM;
+            break;
+          default:
+            throw new ConflictException('Invalid category value.');
+        }
       }
 
       const minPriceNumber =
@@ -78,9 +99,6 @@ export class RoomRepository {
         conditions.push('room.price <= :maxPriceNumber');
         parameters['maxPriceNumber'] = maxPriceNumber;
       }
-
-      console.log(minPriceNumber);
-      console.log(maxPriceNumber);
 
       if (
         minPriceNumber !== undefined &&
