@@ -6,6 +6,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import {
@@ -29,12 +30,12 @@ export class ReservationController {
     description: 'UUID of the user whose reservations are to be fetched',
     type: String,
   })
-  @Get('getReservations/:id')
+  @Get('getReservations/:id') // user id
   async getReservations(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() body?: GetReservationsFiltersDto,
+    @Query() filters?: GetReservationsFiltersDto,
   ) {
-    return await this.reservationRepository.getReservations(id, body);
+    return await this.reservationRepository.getReservations(id, filters);
   }
 
   @ApiOperation({
@@ -42,8 +43,16 @@ export class ReservationController {
     description: 'Retrieve all reservations with optional filters.',
   })
   @Get('getReservations')
-  async getReservationsAll(@Body() body?: GetReservationsFiltersDto) {
-    return await this.reservationRepository.getAllReservations(body);
+  async getReservationsAll(
+    @Query() filters?: GetReservationsFiltersDto,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return await this.reservationRepository.getAllReservations(
+      filters,
+      page,
+      limit,
+    );
   }
 
   @ApiOperation({
@@ -59,9 +68,9 @@ export class ReservationController {
   @Get('getReservationsRoom/:id')
   async getReservationsRoom(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() body?: GetReservationsFiltersDto,
+    @Query() filters?: GetReservationsFiltersDto,
   ) {
-    return await this.reservationRepository.getReservationsRoom(id, body);
+    return await this.reservationRepository.getReservationsRoom(id, filters);
   }
 
   @ApiOperation({
@@ -74,7 +83,7 @@ export class ReservationController {
     description: 'UUID of the user for whom the reservation is to be created',
     type: String,
   })
-  @Post('createReservation/:id')
+  @Post('createReservation/:id') // user id
   async checkin(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: CreateReservationDto,

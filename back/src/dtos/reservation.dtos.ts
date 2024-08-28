@@ -7,7 +7,9 @@ import {
   IsUUID,
   IsInt,
 } from 'class-validator';
+import { ReservationStatus } from 'src/enum/reservationStatus.enums';
 import { Type } from 'src/enum/service.enums';
+
 
 export class CreateReservationDto {
   @ApiProperty({
@@ -27,35 +29,22 @@ export class CreateReservationDto {
   @IsEnum(Type, { each: true })
   services?: Type[];
 
-  @ApiProperty({ description: 'Start day of the reservation', example: 1 })
+  @ApiProperty({
+    description: 'Start Date of the reservation',
+    example: '2024-08-05',
+  })
   @IsInt()
   @IsNotEmpty()
-  startDay: number;
+  startDate: Date;
 
-  @ApiProperty({ description: 'Start month of the reservation', example: 8 })
+  @ApiProperty({
+    description: 'End Date of the reservation',
+    example: '2024-08-10',
+  })
   @IsInt()
   @IsNotEmpty()
-  startMonth: number;
+  endDate: Date;
 
-  @ApiProperty({ description: 'Start year of the reservation', example: 2024 })
-  @IsInt()
-  @IsNotEmpty()
-  startYear: number;
-
-  @ApiProperty({ description: 'End day of the reservation', example: 5 })
-  @IsInt()
-  @IsNotEmpty()
-  endDay: number;
-
-  @ApiProperty({ description: 'End month of the reservation', example: 8 })
-  @IsInt()
-  @IsNotEmpty()
-  endMonth: number;
-
-  @ApiProperty({ description: 'End year of the reservation', example: 2024 })
-  @IsInt()
-  @IsNotEmpty()
-  endYear: number;
 
   @ApiPropertyOptional({ description: 'First name of the first guest' })
   @IsOptional()
@@ -86,62 +75,41 @@ export class CreateReservationDto {
   @IsOptional()
   @IsString()
   guestLastName3?: string;
+
+  @ApiPropertyOptional({ 
+    description: 'Status of the reservation', 
+    enum: ReservationStatus, 
+    default: ReservationStatus.PENDING 
+  })
+  @IsOptional()
+  @IsEnum(ReservationStatus)
+  status?: ReservationStatus;
 }
 
+
 export class GetReservationsFiltersDto {
-  @ApiPropertyOptional({
-    description: 'Status of the reservation',
-    example: 'active',
+  @ApiPropertyOptional({ 
+    description: 'Status of the reservation', 
+    enum: ReservationStatus, 
+    default: ReservationStatus.PENDING 
   })
   @IsOptional()
-  @IsString()
-  status?: string;
+  @IsEnum(ReservationStatus)
+  status?: ReservationStatus;
 
-  @ApiPropertyOptional({
-    description: 'Start day of the reservation filter',
-    example: 1,
+  @ApiProperty({
+    description: 'Start Date of the reservation',
+    example: '2024-08-05',
   })
-  @IsOptional()
   @IsInt()
-  startDay?: number;
+  @IsNotEmpty()
+  startDate: string;
 
-  @ApiPropertyOptional({
-    description: 'Start month of the reservation filter',
-    example: 8,
+  @ApiProperty({
+    description: 'End Date of the reservation',
+    example: '2024-08-10',
   })
-  @IsOptional()
   @IsInt()
-  startMonth?: number;
-
-  @ApiPropertyOptional({
-    description: 'Start year of the reservation filter',
-    example: 2024,
-  })
-  @IsOptional()
-  @IsInt()
-  startYear?: number;
-
-  @ApiPropertyOptional({
-    description: 'End day of the reservation filter',
-    example: 5,
-  })
-  @IsOptional()
-  @IsInt()
-  endDay?: number;
-
-  @ApiPropertyOptional({
-    description: 'End month of the reservation filter',
-    example: 8,
-  })
-  @IsOptional()
-  @IsInt()
-  endMonth?: number;
-
-  @ApiPropertyOptional({
-    description: 'End year of the reservation filter',
-    example: 2024,
-  })
-  @IsOptional()
-  @IsInt()
-  endYear?: number;
+  @IsNotEmpty()
+  endDate: string;
 }

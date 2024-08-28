@@ -73,58 +73,26 @@ export class CreateFeatureDto {
 }
 
 export class FilterRoomsDto {
-  @ApiPropertyOptional({
-    description: 'Start day of the reservation filter',
-    example: 1,
+  @ApiProperty({
+    description: 'Available start date of the reservation',
+    example: '2024-08-05',
   })
+  @IsInt()
+  @IsOptional()
+  startingDate?: string;
+
+  @ApiProperty({
+    description: 'Available end date of the reservation',
+    example: '2024-08-10',
+  })
+  @IsInt()
+  @IsOptional()
+  endingDate?: string;
+
+  @ApiPropertyOptional({ description: 'number of category', example: '1' })
   @IsOptional()
   @IsInt()
-  startDay?: number;
-
-  @ApiPropertyOptional({
-    description: 'Start month of the reservation filter',
-    example: 8,
-  })
-  @IsOptional()
-  @IsInt()
-  startMonth?: number;
-
-  @ApiPropertyOptional({
-    description: 'Start year of the reservation filter',
-    example: 2024,
-  })
-  @IsOptional()
-  @IsInt()
-  startYear?: number;
-
-  @ApiPropertyOptional({
-    description: 'End day of the reservation filter',
-    example: 5,
-  })
-  @IsOptional()
-  @IsInt()
-  endDay?: number;
-
-  @ApiPropertyOptional({
-    description: 'End month of the reservation filter',
-    example: 8,
-  })
-  @IsOptional()
-  @IsInt()
-  endMonth?: number;
-
-  @ApiPropertyOptional({
-    description: 'End year of the reservation filter',
-    example: 2024,
-  })
-  @IsOptional()
-  @IsInt()
-  endYear?: number;
-
-  @ApiPropertyOptional({ description: 'Category of the room', enum: Category })
-  @IsOptional()
-  @IsEnum(Category)
-  category?: Category;
+  category?: string;
 
   @ApiPropertyOptional({
     description: 'Minimum price of the room',

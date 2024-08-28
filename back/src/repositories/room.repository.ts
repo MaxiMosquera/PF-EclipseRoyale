@@ -32,7 +32,7 @@ export class RoomRepository {
   async getAllRooms(
     page: number,
     limit: number,
-    body?: FilterRoomsDto,
+    filters?: FilterRoomsDto,
   ): Promise<any> {
     if (page <= 0) {
       throw new ConflictException('Page number must be greater than 0.');
@@ -49,60 +49,73 @@ export class RoomRepository {
     const conditions: any = [];
     const parameters: any = {};
 
-    if (body) {
-      const {
-        category,
-        minPrice,
-        maxPrice,
-        startDay,
-        startMonth,
-        startYear,
-        endDay,
-        endMonth,
-        endYear,
-      } = body;
+    if (filters) {
+      const { minPrice, maxPrice, startingDate, endingDate, category } =
+        filters;
 
-      if (category) {
-        conditions.push('room.category = :category');
-        parameters['category'] = category;
+      // Convertir el valor de category a número
+      const categoryNumber = category ? Number(category) : undefined;
+
+      if (categoryNumber) {
+        switch (categoryNumber) {
+          case 1:
+          case 2:
+            conditions.push(
+              '(room.category = :suite OR room.category = :suitePremium)',
+            );
+            parameters['suite'] = Category.SUITE;
+            parameters['suitePremium'] = Category.SUITE_PREMIUM;
+            break;
+          case 3:
+          case 4:
+            conditions.push(
+              '(room.category = :loft OR room.category = :loftPremium)',
+            );
+            parameters['loft'] = Category.LOFT;
+            parameters['loftPremium'] = Category.LOFT_PREMIUM;
+            break;
+          default:
+            throw new ConflictException('Invalid category value.');
+        }
       }
 
-      if (minPrice !== undefined) {
-        if (minPrice < 0) {
-          throw new ConflictException('MinPrice cannot be negative.');
+      const minPriceNumber =
+        minPrice !== undefined ? Number(minPrice) : undefined;
+      const maxPriceNumber =
+        maxPrice !== undefined ? Number(maxPrice) : undefined;
+
+      if (minPriceNumber !== undefined) {
+        if (minPriceNumber < 0) {
+          throw new ConflictException('minPriceNumber cannot be negative.');
         }
-        conditions.push('room.price >= :minPrice');
-        parameters['minPrice'] = minPrice;
+        conditions.push('room.price >= :minPriceNumber');
+        parameters['minPriceNumber'] = minPriceNumber;
       }
 
-      if (maxPrice !== undefined) {
-        if (maxPrice < 0) {
-          throw new ConflictException('MaxPrice cannot be negative.');
+      if (maxPriceNumber !== undefined) {
+        if (maxPriceNumber < 0) {
+          throw new ConflictException('maxPriceNumber cannot be negative.');
         }
-        conditions.push('room.price <= :maxPrice');
-        parameters['maxPrice'] = maxPrice;
+        conditions.push('room.price <= :maxPriceNumber');
+        parameters['maxPriceNumber'] = maxPriceNumber;
       }
 
       if (
-        minPrice !== undefined &&
-        maxPrice !== undefined &&
-        minPrice > maxPrice
+        minPriceNumber !== undefined &&
+        maxPriceNumber !== undefined &&
+        minPriceNumber > maxPriceNumber
       ) {
         throw new ConflictException(
-          'MinPrice cannot be greater than MaxPrice.',
+          'minPriceNumber cannot be greater than maxPriceNumber.',
         );
       }
 
-      const hasStartDate =
-        startDay !== undefined &&
-        startMonth !== undefined &&
-        startYear !== undefined;
-      const hasEndDate =
-        endDay !== undefined && endMonth !== undefined && endYear !== undefined;
+      const hasStartDate = startingDate !== undefined;
+      const hasEndDate = endingDate !== undefined;
 
       if (hasStartDate && hasEndDate) {
-        const startDate = new Date(startYear, startMonth - 1, startDay);
-        const endDate = new Date(endYear, endMonth - 1, endDay);
+        const startDate = new Date(startingDate);
+        const endDate = new Date(endingDate);
 
         if (startDate > endDate) {
           throw new ConflictException('Start date cannot be after end date.');
@@ -170,15 +183,15 @@ export class RoomRepository {
     if (!room) {
       throw new NotFoundException(`Room with ID ${id} not found`);
     }
-    
+
     const availableServices = await this.serviceRepository.find({});
-    
-     // Añadir las imágenes correspondientes a la categoría
+
+    // Añadir las imágenes correspondientes a la categoría
     if (roomImages[room.category as Category]) {
-    room.images = roomImages[room.category as Category];
-   } else {
-    room.images = []; // O manejar el caso donde no haya imágenes
-   }
+      room.images = roomImages[room.category as Category];
+    } else {
+      room.images = []; // O manejar el caso donde no haya imágenes
+    }
 
     return [room, availableServices];
   }
