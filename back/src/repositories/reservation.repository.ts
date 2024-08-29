@@ -39,57 +39,47 @@ export class ReservationRepository {
   ) {}
 
   async getReservations(id: string, body?: GetReservationsFiltersDto) {
+    console.log('hi');
+
     const hasStartDate = body?.startDate;
     const hasEndDate = body?.endDate;
     const hasStatus = body?.status;
 
-    if (
-      (body?.startDate && !body?.endDate) ||
-      (!body?.startDate && body?.endDate)
-    ) {
+    if ((hasStartDate && !hasEndDate) || (!hasStartDate && hasEndDate)) {
       throw new ConflictException('Incomplete date information provided.');
     }
 
-    if (hasStartDate || hasEndDate || hasStatus) {
-      const query = this.reservationRepository
-        .createQueryBuilder('reservation')
-        .where('reservation.user = :id', { id });
+    let query = this.reservationRepository
+      .createQueryBuilder('reservation')
+      .leftJoinAndSelect('reservation.room', 'room')
+      .where('reservation.user = :id', { id });
 
-      if (hasStartDate && hasEndDate) {
-        const startDate = new Date(body.startDate);
-        const endDate = new Date(body.endDate);
+    if (hasStartDate && hasEndDate) {
+      const startDate = new Date(body.startDate);
+      const endDate = new Date(body.endDate);
 
-        if (startDate > endDate) {
-          throw new ConflictException(
-            'Start date cannot be later than end date.',
-          );
-        }
-
-        query.andWhere(
-          'reservation.startDate <= :endDate AND reservation.endDate >= :startDate',
-          { startDate, endDate },
+      if (startDate > endDate) {
+        throw new ConflictException(
+          'Start date cannot be later than end date.',
         );
       }
 
-      if (hasStatus) {
-        query.andWhere('reservation.status = :status', { status: body.status });
-      }
-
-      const reservations = await query.getMany();
-      return reservations;
+      query = query.andWhere(
+        'reservation.startDate <= :endDate AND reservation.endDate >= :startDate',
+        { startDate, endDate },
+      );
     }
 
-    if (!body.endDate && !body.startDate && !body.status) {
-      const reservations = await this.reservationRepository.find({
-        where: { user: { id } },
+    if (hasStatus) {
+      query = query.andWhere('reservation.status = :status', {
+        status: body.status,
       });
-      return reservations;
-    } else if (body.status && !hasStartDate && !hasEndDate) {
-      const reservations = await this.reservationRepository.find({
-        where: { user: { id }, status: body.status },
-      });
-      return reservations;
     }
+
+    // Ensure to use query builder for all cases
+    const reservations = await query.getMany();
+
+    return reservations;
   }
 
   async getAllReservations(
