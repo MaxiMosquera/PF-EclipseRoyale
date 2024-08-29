@@ -51,7 +51,7 @@ export class AuthRepository {
   async login(
     email: string,
     password: string,
-  ): Promise<{ message: string; token: string }> {
+  ): Promise<{ message: string; token: string; user: User }> {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
       throw new NotFoundException('Invalid email');
@@ -67,6 +67,7 @@ export class AuthRepository {
     return {
       message: 'Login successful',
       token,
+      user: user,
     };
   }
 
