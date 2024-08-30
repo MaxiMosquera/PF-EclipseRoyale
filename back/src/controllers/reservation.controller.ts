@@ -30,19 +30,26 @@ export class ReservationController {
     description: 'UUID of the user whose reservations are to be fetched',
     type: String,
   })
-  @Get('getReservations/:id') // user id
+  @Get('getUserReservations/:email') // user email
   async getReservations(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('email') email: string,
     @Query() filters?: GetReservationsFiltersDto,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
   ) {
-    return await this.reservationRepository.getReservations(id, filters);
+    return await this.reservationRepository.getReservations(
+      email,
+      filters,
+      page,
+      limit,
+    );
   }
 
   @ApiOperation({
     summary: 'Get all reservations',
     description: 'Retrieve all reservations with optional filters.',
   })
-  @Get('getReservations')
+  @Get('getAllReservations')
   async getReservationsAll(
     @Query() filters?: GetReservationsFiltersDto,
     @Query('page') page: number = 1,
