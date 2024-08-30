@@ -19,12 +19,9 @@ export class FeatureRepository implements OnModuleInit {
     @InjectRepository(Features)
     private readonly featureRepository: Repository<Features>,
     @InjectRepository(Room) private readonly roomRepository: Repository<Room>,
-    
   ) {}
 
   async onModuleInit() {
-    
-
     for (const feature of features) {
       const exists = await this.featureRepository.findOneBy({
         name: feature.name,
@@ -45,6 +42,8 @@ export class FeatureRepository implements OnModuleInit {
       return;
     }
 
+    console.log('building predefined data');
+
     for (const roomData of rooms) {
       // Busca las features por nombre
       const foundFeatures: Features[] = [];
@@ -53,7 +52,6 @@ export class FeatureRepository implements OnModuleInit {
           where: { name: feature.name },
         });
         if (feature.name === 'Vista al Mar') {
-          console.log(feature.name);
         }
         if (foundFeature) {
           foundFeatures.push(foundFeature);
@@ -63,14 +61,13 @@ export class FeatureRepository implements OnModuleInit {
       }
 
       // Crea y guarda la room con sus features
-      console.log(foundFeatures);
       let room = await this.roomRepository.findOne({
         where: { number: roomData.number },
       });
 
       if (!room) {
         // Si la habitación no existe, crea una nueva
-          room = this.roomRepository.create({
+        room = this.roomRepository.create({
           number: roomData.number,
           price: roomData.price,
           category: roomData.category,

@@ -1,9 +1,6 @@
 import { Category } from 'src/enum/room.enums';
 import { roomImages } from './roomsimages';
 
-
-console.log(roomImages);
-
 export const rooms = [
   ...Array.from({ length: 20 }, (_, i) => ({
     number: i + 1,
@@ -11,7 +8,6 @@ export const rooms = [
     category: Category.SUITE,
     images: roomImages[Category.SUITE] || [],
     features: [{ name: 'Dos camas individuales' }],
-    
   })),
   ...Array.from({ length: 20 }, (_, i) => ({
     number: i + 21,
@@ -24,7 +20,7 @@ export const rooms = [
     number: i + 41,
     price: 120,
     category: Category.LOFT,
-    images: roomImages[Category.LOFT]   || [],
+    images: roomImages[Category.LOFT] || [],
     features: [{ name: 'Dos camas individuales' }, { name: 'Cama King Size' }],
   })),
   ...Array.from({ length: 20 }, (_, i) => ({
