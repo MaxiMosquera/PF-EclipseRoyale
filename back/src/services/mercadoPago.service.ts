@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { preference } from 'src/config/mercadopago';
+import { preference } from 'src/config/mercadoPago';
 
 @Injectable()
 export class MercadoPagoService {
