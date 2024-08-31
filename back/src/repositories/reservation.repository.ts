@@ -466,5 +466,26 @@ export class ReservationRepository {
     await this.reservationRepository.save(reservation);
 
     return reservation;
+
+    
   }
+
+  async changeStatusToCancelled(id: string) {
+    const reservation = await this.reservationRepository.findOne({
+        where: { id },
+    });
+
+    if (!reservation) {
+        throw new NotFoundException('Reservation not found');
+    }
+
+    if (reservation.status === 'completed') {
+        throw new ConflictException('Reservation already finished');
+    }
+
+    reservation.status = ReservationStatus.CANCELED;
+    await this.reservationRepository.save(reservation);
+
+    return reservation;
+}
 }
