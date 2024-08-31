@@ -23,6 +23,7 @@ async function bootstrap() {
 
 
       'https://front-hotel-app-six.vercel.app',
+      //le borre la barra del orto
 
 
     ],
