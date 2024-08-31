@@ -27,7 +27,7 @@ export class MercadoPagoService {
     console.log('estoy aca');
     try {
       const response = await preference.create({ body: preferenceData });
-      return response.init_point;
+      return { preferenceId: response.id };
     } catch (error) {
       throw new BadRequestException(
         `Failed to create preference: ${error.message}`,
