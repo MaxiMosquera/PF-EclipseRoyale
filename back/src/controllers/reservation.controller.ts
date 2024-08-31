@@ -112,4 +112,19 @@ export class ReservationController {
   async checkout(@Param('id', ParseUUIDPipe) id: string) {
     return await this.reservationRepository.checkout(id);
   }
+
+  @ApiOperation({
+    summary: 'Cancel a reservation',
+    description:
+      'Cancel a reservation by marking it as cancelled using its ID.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the reservation to be cancelled',
+    type: String,
+  })
+  @Put('cancel/:id')
+  async cancel(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.reservationRepository.changeStatusToCancelled(id);
+  }
 }

@@ -30,12 +30,16 @@ export class MercadoPagoController {
     if (!reservation) {
       throw new NotFoundException('Reservation not found');
     }
-    // res.redirect('https://front-hotel-app-g8u2.vercel.app/payOk');
+     res.redirect('localhost:3000/');
   }
 
-  @Get('failure')
-  failure(@Res() res) {
+  @Get('failure/:id')
+  async failure(@Res() res, @Param('id', ParseUUIDPipe) id: string) {
     console.log('failure');
-    // res.redirect('https://front-hotel-app-g8u2.vercel.app/payWrong');
+    const reservation = await this.reservationRepository.changeStatusToCancelled(id)
+    if (!reservation) {
+      throw new NotFoundException('Reservation not found');
+    }
+     res.redirect('localhost:3000/');
   }
 }
