@@ -20,7 +20,7 @@ export class MercadoPagoService {
       })),
       back_urls: {
         success: `http://localhost:3000/success/${body.items[0].id}`,
-        failure: `https://pf-eclipseroyale.onrender.com/failure/${body.items[0].id}`,
+        failure: `https://localhost:3000/failure/${body.items[0].id}`,
       },
       auto_return: 'approved',
     };
