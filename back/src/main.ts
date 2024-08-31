@@ -19,8 +19,12 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3001',
+<<<<<<< HEAD
       'https://front-hotel-app-g8u2.vercel.app',
       "https://front-hotel-app-six.vercel.app/"
+=======
+      'https://front-hotel-app-six.vercel.app/',
+>>>>>>> 1c538a2b7e095d5ca4e03670126e0c024589cf68
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,

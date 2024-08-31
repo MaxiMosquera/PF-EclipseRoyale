@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   CreateReservationDto,
@@ -18,7 +19,14 @@ import { User } from 'src/entities/user.entity';
 import { ReservationStatus } from 'src/enum/reservationStatus.enums';
 import { Type } from 'src/enum/service.enums';
 import { MailService } from 'src/services/mail.service';
-import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import * as moment from 'moment-timezone';
+import {
+  Equal,
+  LessThan,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 
 @Injectable()
 export class ReservationRepository {
@@ -33,14 +41,64 @@ export class ReservationRepository {
     private readonly monthlyProfitRepository: Repository<MonthlyProfit>,
     @InjectRepository(ReservationService)
     private readonly reservationServiceRepository: Repository<ReservationService>,
-    @InjectRepository(GuestPrice)
-    private readonly guestPriceRepository: Repository<GuestPrice>,
     private readonly emailService: MailService,
   ) {}
 
-  async getReservations(id: string, body?: GetReservationsFiltersDto) {
-    console.log('hi');
+  // Esta función se ejecutará todos los día a las 8:00 AM
+  @Cron('0 8 * * *')
+  async handleCronMorning() {
+    console.log('Ejecución diaria a las 8:00 AM');
+    await this.updateReservationToInProgress();
+  }
 
+  // Esta función se ejecutará todos los días a las 11:00 PM
+  @Cron('0 23 * * *')
+  async handleCronNight() {
+    console.log('Ejecución diaria a las 11:00 PM');
+    await this.updateReservationToFinished();
+  }
+
+  async updateReservationToInProgress(): Promise<void> {
+    const localTimezone = 'America/Argentina/Buenos_Aires'; // Ajusta esto a tu zona horaria local
+    const today = moment().tz(localTimezone).startOf('day').toDate();
+
+    // Busca las reservas que tienen el startDate exactamente hoy y están en estado PENDING
+    const reservationsToStart = await this.reservationRepository.find({
+      where: {
+        startDate: Equal(today),
+        status: ReservationStatus.PENDING,
+      },
+    });
+
+    for (const reservation of reservationsToStart) {
+      reservation.status = ReservationStatus.IN_PROGRESS;
+      await this.reservationRepository.save(reservation);
+    }
+  }
+
+  async updateReservationToFinished(): Promise<void> {
+    const localTimezone = 'America/Argentina/Buenos_Aires'; // Ajusta esto a tu zona horaria local
+    const today = moment().tz(localTimezone).startOf('day').toDate();
+
+    // Busca las reservas que tienen el endDate exactamente hoy y están en estado IN_PROGRESS
+    const reservationsToComplete = await this.reservationRepository.find({
+      where: {
+        endDate: Equal(today),
+        status: ReservationStatus.IN_PROGRESS,
+      },
+    });
+
+    for (const reservation of reservationsToComplete) {
+      reservation.status = ReservationStatus.COMPLETED;
+      await this.reservationRepository.save(reservation);
+    }
+  }
+  async getReservations(
+    email: string,
+    body?: GetReservationsFiltersDto,
+    page?: number,
+    limit?: number,
+  ): Promise<any> {
     const hasStartDate = body?.startDate;
     const hasEndDate = body?.endDate;
     const hasStatus = body?.status;
@@ -49,10 +107,15 @@ export class ReservationRepository {
       throw new ConflictException('Incomplete date information provided.');
     }
 
+    const user = await this.userRepository.findOneBy({ email });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     let query = this.reservationRepository
       .createQueryBuilder('reservation')
       .leftJoinAndSelect('reservation.room', 'room')
-      .where('reservation.user = :id', { id });
+      .where('reservation.user = :id', { id: user.id });
 
     if (hasStartDate && hasEndDate) {
       const startDate = new Date(body.startDate);
@@ -76,10 +139,22 @@ export class ReservationRepository {
       });
     }
 
-    // Ensure to use query builder for all cases
-    const reservations = await query.getMany();
+    // Calcular el offset para la paginación
+    const offset = page && limit ? (page - 1) * limit : undefined;
 
-    return reservations;
+    // Aplicar paginación si los parámetros están presentes
+    if (offset !== undefined && limit !== undefined) {
+      query = query.skip(offset).take(limit);
+    }
+
+    const [reservations, total] = await query.getManyAndCount();
+
+    return {
+      data: reservations,
+      total,
+      currentPage: page || 1,
+      totalPages: limit ? Math.ceil(total / limit) : 1,
+    };
   }
 
   async getAllReservations(
@@ -246,12 +321,18 @@ export class ReservationRepository {
       throw new NotFoundException('Room not found');
     }
 
-    const startDate = new Date(body.startDate);
-    const endDate = new Date(body.endDate);
+    const localTimezone = 'America/Argentina/Buenos_Aires'; // Ajusta esto a tu zona horaria local
+    const startDate = moment.tz(body.startDate, localTimezone).toDate();
+    const endDate = moment.tz(body.endDate, localTimezone).toDate();
+
+    console.log(startDate, endDate);
+
+    console.log(startDate, endDate);
 
     const days = Math.ceil(
       (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
     );
+    console.log(days);
 
     if (days <= 0) {
       throw new ConflictException('Invalid date range');
@@ -285,6 +366,8 @@ export class ReservationRepository {
 
     let totalPrice: number = room.price * days;
 
+    console.log(startDate);
+
     // Crear la reserva
     const reservation = this.reservationRepository.create({
       price: totalPrice,
@@ -309,8 +392,11 @@ export class ReservationRepository {
       if (!serviceEntity) {
         throw new NotFoundException(`Service of type ${serviceType} not found`);
       }
+      console.log('total price before', totalPrice);
 
-      totalPrice += serviceEntity.price;
+      totalPrice += serviceEntity.price * days;
+      console.log('totalPrice', totalPrice);
+      console.log(serviceEntity.price);
 
       const reservationService = this.reservationServiceRepository.create({
         reservation,

@@ -15,9 +15,11 @@ import { ReservationModule } from './modules/reservation.module';
 import { MailService } from './services/mail.service';
 import { MailModule } from './modules/mail.module';
 import { MercadopagoModule } from './modules/mercadoPago.module';
+import { ScheduleModule } from '@nestjs/schedule';
 // import { CloudinaryModule } from './modules/cloudinary.module';
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true, load: [typeormConfig] }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -38,7 +40,7 @@ import { MercadopagoModule } from './modules/mercadoPago.module';
     CloudinaryModule,
     ReservationModule,
     MailModule,
-    MercadopagoModule
+    MercadopagoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -31,7 +31,7 @@ export class AuthController {
   @LoginSwagger()
   async login(
     @Body() body: CredentialsDto,
-  ): Promise<{ message: string; token: string; user: User }> {
+  ): Promise<{ message: string; token: string }> {
     return await this.authRepository.login(body.email, body.password);
   }
 
@@ -54,7 +54,6 @@ export class AuthController {
     }
     const state = {
       user: {
-        id: createdUser.id,
         email: createdUser.email,
         name: createdUser.name,
         image: createdUser.image,
@@ -62,8 +61,8 @@ export class AuthController {
       access_token: jwt,
     };
     res.redirect(
-      // `http://localhost:3001/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
-      `https://front-hotel-app-six.vercel.app/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
+      `http://localhost:3001/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
+      // `https://front-hotel-app-six.vercel.app/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
     );
   }
 }
