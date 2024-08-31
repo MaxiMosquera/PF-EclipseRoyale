@@ -20,7 +20,11 @@ async function bootstrap() {
     origin: [
       'http://localhost:3001',
 
+
+
       'https://front-hotel-app-six.vercel.app/',
+
+
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,

@@ -19,8 +19,8 @@ export class MercadoPagoService {
         quantity: item.quantity, // numero de habitaciones
       })),
       back_urls: {
-        success: `http://localhost:3000/success/${body.items[0].id}`,
-        failure: `https://localhost:3000/failure/${body.items[0].id}`,
+        success: `https://pf-eclipseroyale.onrender.com/success/${body.items[0].id}`,
+        failure: `https://pf-eclipseroyale.onrender.comfailure/${body.items[0].id}`,
       },
       auto_return: 'approved',
     };
