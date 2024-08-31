@@ -22,7 +22,7 @@ async function bootstrap() {
 
 
 
-      'https://front-hotel-app-six.vercel.app/',
+      'https://front-hotel-app-six.vercel.app',
 
 
     ],
