@@ -30,16 +30,17 @@ export class MercadoPagoController {
     if (!reservation) {
       throw new NotFoundException('Reservation not found');
     }
-     res.redirect('localhost:3000/');
+    //  res.redirect('localhost:3000/');
   }
 
   @Get('failure/:id')
   async failure(@Res() res, @Param('id', ParseUUIDPipe) id: string) {
     console.log('failure');
-    const reservation = await this.reservationRepository.changeStatusToCancelled(id)
+    const reservation =
+      await this.reservationRepository.changeStatusToCancelled(id);
     if (!reservation) {
       throw new NotFoundException('Reservation not found');
     }
-     res.redirect('localhost:3000/');
+    //  res.redirect('localhost:3000/');
   }
 }
