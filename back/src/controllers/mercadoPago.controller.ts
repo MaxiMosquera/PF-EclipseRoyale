@@ -44,3 +44,5 @@ export class MercadoPagoController {
     res.redirect('https://front-hotel-app-six.vercel.app/pay-wrong');
   }
 }
+
+// b
