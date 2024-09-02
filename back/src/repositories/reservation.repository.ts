@@ -491,5 +491,9 @@ export class ReservationRepository {
     const reservation = await this.reservationRepository.findOne({
       where: { id },
     });
+
+    const users = await this.userRepository.find();
+
+    return 'a';
   }
 }
