@@ -494,6 +494,6 @@ export class ReservationRepository {
 
     const users = await this.userRepository.find();
 
-    return 'a';
+    return 'test';
   }
 }
