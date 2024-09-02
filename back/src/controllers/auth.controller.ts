@@ -61,8 +61,9 @@ export class AuthController {
       access_token: jwt,
     };
     res.redirect(
-      `http://localhost:3001/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
-      // `https://front-hotel-app-six.vercel.app/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
+      // `http://localhost:3001/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
+      `https://front-hotel-app-six.vercel.app/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
     );
   }
 }
+// a
