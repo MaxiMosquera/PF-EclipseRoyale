@@ -9,7 +9,6 @@ import {
   CreateReservationDto,
   GetReservationsFiltersDto,
 } from 'src/dtos/reservation.dtos';
-import { GuestPrice } from 'src/entities/guestPrice.entity';
 import { MonthlyProfit } from 'src/entities/monthlyProfit.entity';
 import { Reservation } from 'src/entities/reservation.entity';
 import { Room } from 'src/entities/room.entity';
@@ -27,6 +26,7 @@ import {
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
+import { equal } from 'assert';
 
 @Injectable()
 export class ReservationRepository {
@@ -336,8 +336,8 @@ export class ReservationRepository {
 
     if (days <= 0) {
       throw new ConflictException('Invalid date range');
-    } else if (days > 15) {
-      throw new ConflictException('Maximum 15 days');
+    } else if (days > 30) {
+      throw new ConflictException('Maximum reservation duration is 30 days');
     }
 
     const actuallyActiveReservation = await this.reservationRepository.findOne({
