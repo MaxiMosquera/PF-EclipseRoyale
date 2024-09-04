@@ -348,22 +348,6 @@ export class ReservationRepository {
       throw new ConflictException('You already have an active reservation');
     }
 
-    const overlappingReservation = await this.reservationRepository.findOne({
-      where: [
-        {
-          room: { id: body.roomId },
-          startDate: LessThanOrEqual(endDate),
-          endDate: MoreThanOrEqual(startDate),
-        },
-      ],
-    });
-
-    if (overlappingReservation) {
-      throw new ConflictException(
-        'There is already a reservation during these dates for this room.',
-      );
-    }
-
     let totalPrice: number = room.price * days;
 
     console.log(startDate);
