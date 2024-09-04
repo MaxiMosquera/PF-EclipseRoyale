@@ -26,7 +26,7 @@ export class UserRepository implements OnModuleInit {
       return;
     }
 
-    const hashedPassword = await bcrypt.hash('admin', 10);
+    const hashedPassword = await bcrypt.hash('Password1!', 10);
 
     const newUser = this.userRepository.create({
       name: 'admin',

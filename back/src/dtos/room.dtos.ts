@@ -109,4 +109,12 @@ export class FilterRoomsDto {
   @IsOptional()
   @IsInt()
   maxPrice?: number;
+
+  @ApiPropertyOptional({
+    description: 'Room number',
+    example: 1,
+  })
+  @IsOptional()
+  @IsInt()
+  number?: number;
 }
