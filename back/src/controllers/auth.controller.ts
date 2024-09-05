@@ -71,8 +71,10 @@ export class AuthController {
 
   @Get('test')
   async logout(): Promise<string> {
+    // i verifi if the variable is defined
     const variable = process.env.GOOGLE_AUTH_CB_URL;
 
     return variable ? 'OK' : 'FAIL';
   }
 }
+// a
