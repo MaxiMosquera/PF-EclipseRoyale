@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -16,10 +18,13 @@ import { MailService } from './services/mail.service';
 import { MailModule } from './modules/mail.module';
 import { MercadopagoModule } from './modules/mercadoPago.module';
 import { ScheduleModule } from '@nestjs/schedule';
-// import { CloudinaryModule } from './modules/cloudinary.module';
+
 @Module({
   imports: [
     ScheduleModule.forRoot(),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
     ConfigModule.forRoot({ isGlobal: true, load: [typeormConfig] }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],

@@ -53,10 +53,10 @@ export class User {
   image?: string;
 
   @ApiProperty({ description: "User's adress", example: 'adress 2323' })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  @Column({ nullable: false, type: 'varchar', length: 50 })
-  adress: string;
+  @Column({ nullable: true, type: 'varchar', length: 50 })
+  adress?: string;
 
   @ApiProperty({ description: "User's role", example: 'ADMIN' })
   @Column({ nullable: true, type: 'enum', enum: Role, default: Role.USER })

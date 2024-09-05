@@ -9,7 +9,6 @@ import {
   CreateReservationDto,
   GetReservationsFiltersDto,
 } from 'src/dtos/reservation.dtos';
-import { GuestPrice } from 'src/entities/guestPrice.entity';
 import { MonthlyProfit } from 'src/entities/monthlyProfit.entity';
 import { Reservation } from 'src/entities/reservation.entity';
 import { Room } from 'src/entities/room.entity';
@@ -27,6 +26,7 @@ import {
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
+import { equal } from 'assert';
 
 @Injectable()
 export class ReservationRepository {
@@ -336,8 +336,8 @@ export class ReservationRepository {
 
     if (days <= 0) {
       throw new ConflictException('Invalid date range');
-    } else if (days > 15) {
-      throw new ConflictException('Maximum 15 days');
+    } else if (days > 30) {
+      throw new ConflictException('Maximum reservation duration is 30 days');
     }
 
     const actuallyActiveReservation = await this.reservationRepository.findOne({
@@ -346,22 +346,6 @@ export class ReservationRepository {
 
     if (actuallyActiveReservation) {
       throw new ConflictException('You already have an active reservation');
-    }
-
-    const overlappingReservation = await this.reservationRepository.findOne({
-      where: [
-        {
-          room: { id: body.roomId },
-          startDate: LessThanOrEqual(endDate),
-          endDate: MoreThanOrEqual(startDate),
-        },
-      ],
-    });
-
-    if (overlappingReservation) {
-      throw new ConflictException(
-        'There is already a reservation during these dates for this room.',
-      );
     }
 
     let totalPrice: number = room.price * days;
@@ -386,7 +370,7 @@ export class ReservationRepository {
 
     for (const serviceType of body.services) {
       const serviceEntity = await this.serviceRepository.findOne({
-        where: { type: serviceType },
+        where: { name: serviceType },
       });
 
       if (!serviceEntity) {
@@ -466,26 +450,34 @@ export class ReservationRepository {
     await this.reservationRepository.save(reservation);
 
     return reservation;
-
-    
   }
 
   async changeStatusToCancelled(id: string) {
     const reservation = await this.reservationRepository.findOne({
-        where: { id },
+      where: { id },
     });
 
     if (!reservation) {
-        throw new NotFoundException('Reservation not found');
+      throw new NotFoundException('Reservation not found');
     }
 
     if (reservation.status === 'completed') {
-        throw new ConflictException('Reservation already finished');
+      throw new ConflictException('Reservation already finished');
     }
 
     reservation.status = ReservationStatus.CANCELED;
     await this.reservationRepository.save(reservation);
 
     return reservation;
-}
+  }
+
+  async testFunction(id: string) {
+    const reservation = await this.reservationRepository.findOne({
+      where: { id },
+    });
+
+    const users = await this.userRepository.find();
+
+    return 'test';
+  }
 }

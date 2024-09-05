@@ -7,7 +7,9 @@ import {
   ParseUUIDPipe,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiOperation,
   ApiParam,
@@ -16,12 +18,16 @@ import {
   ApiBody,
   ApiResponse,
 } from '@nestjs/swagger';
+import { Roles } from 'src/decorators/role.decorator';
 import {
   GetAllUsersResponseSchema,
   GetUserByIdResponseSchema,
 } from 'src/dtos/responses.dtos/user.responses';
 import { UpdateUserDto } from 'src/dtos/updateuser.dto';
 import { User } from 'src/entities/user.entity';
+import { Role } from 'src/enum/user.enums';
+import { AdminGuard } from 'src/guards/admin.guard';
+import { AuthGUard } from 'src/guards/auth.guard';
 import { UserRepository } from 'src/repositories/user.repository';
 
 @ApiTags('Users')
@@ -106,8 +112,29 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: 'Delete a user',
-    description: 'Delete a user by their unique ID.',
+    summary: 'Give employee role to a user',
+    description: 'Give employee role to a user by their unique ID.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the user to update',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User updated successfully',
+    schema: GetUserByIdResponseSchema,
+  })
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGUard, AdminGuard)
+  @Put(':id')
+  async giveEmployeeRole(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.userRepository.giveEmployeeRole(id);
+  }
+
+  @ApiOperation({
+    summary: 'Suspend a user',
+    description: 'Suspend a user by their unique ID.',
   })
   @ApiParam({
     name: 'id',
@@ -116,13 +143,38 @@ export class UserController {
   })
   @ApiResponse({
     status: 200,
-    description: 'User deleted successfully',
+    description: 'User suspended successfully',
     schema: {
-      example: 'User deleted',
+      example: 'User suspended',
     },
   })
-  @Delete(':id')
-  async deleteUser(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
-    return await this.userRepository.deleteUser(id);
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
+  @Put(':id')
+  async suspendUser(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
+    return await this.userRepository.suspendUser(id);
+  }
+
+  @ApiOperation({
+    summary: 'Suspend a user',
+    description: 'Suspend a user by their unique ID.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the user to delete',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User suspended successfully',
+    schema: {
+      example: 'User suspended',
+    },
+  })
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
+  @Put(':id')
+  async restoreUser(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
+    return await this.userRepository.restoreUser(id);
   }
 }

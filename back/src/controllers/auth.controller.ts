@@ -15,6 +15,9 @@ import { CreateUserDto } from 'src/dtos/user.dtos';
 import { User } from 'src/entities/user.entity';
 import { AuthRepository } from 'src/repositories/auth.repository';
 import { Request, Response } from 'express'; // Importar desde 'express'
+import { config as dotenvConfig } from 'dotenv';
+
+dotenvConfig({ path: '.env' });
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -50,7 +53,7 @@ export class AuthController {
     const user = await this.authRepository.findByEmail(req.user.email); // Usar el repositorio para buscar el usuario
     const jwt = await this.authRepository.createJwtToken(user);
     if (isNew) {
-      await this.authRepository.sendEmail(createdUser); // Método para enviar email
+      // await this.authRepository.sendEmail(createdUser);
     }
     const state = {
       user: {
@@ -61,8 +64,17 @@ export class AuthController {
       access_token: jwt,
     };
     res.redirect(
-      `http://localhost:3001/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
-      // `https://front-hotel-app-six.vercel.app/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
+      // `http://localhost:3001/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
+      `https://front-hotel-app-six.vercel.app/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
     );
   }
+
+  @Get('test')
+  async logout(): Promise<string> {
+    // i verifi if the variable is defined
+    const variable = process.env.GOOGLE_AUTH_CB_URL;
+
+    return variable ? 'OK' : 'FAIL';
+  }
 }
+// a

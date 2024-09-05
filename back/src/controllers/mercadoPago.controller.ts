@@ -30,7 +30,7 @@ export class MercadoPagoController {
     if (!reservation) {
       throw new NotFoundException('Reservation not found');
     }
-      res.redirect('https://front-hotel-app-six.vercel.app/');
+    res.redirect('https://front-hotel-app-six.vercel.app/pay-ok');
   }
 
   @Get('failure/:id')
@@ -41,6 +41,8 @@ export class MercadoPagoController {
     if (!reservation) {
       throw new NotFoundException('Reservation not found');
     }
-      res.redirect('https://front-hotel-app-six.vercel.app/');
+    res.redirect('https://front-hotel-app-six.vercel.app/pay-wrong');
   }
 }
+
+// b

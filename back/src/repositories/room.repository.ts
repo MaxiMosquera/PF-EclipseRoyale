@@ -17,7 +17,7 @@ import { Room } from 'src/entities/room.entity';
 import { Service } from 'src/entities/service.entity';
 import { Category } from 'src/enum/room.enums';
 import { roomImages } from 'src/utils/roomsimages';
-import { Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 
 @Injectable()
 export class RoomRepository {
@@ -50,7 +50,7 @@ export class RoomRepository {
     const parameters: any = {};
 
     if (filters) {
-      const { minPrice, maxPrice, startingDate, endingDate, category } =
+      const { minPrice, maxPrice, startingDate, endingDate, category, number } =
         filters;
 
       // Convertir el valor de category a número
@@ -77,6 +77,11 @@ export class RoomRepository {
           default:
             throw new ConflictException('Invalid category value.');
         }
+      }
+
+      if (number) {
+        conditions.push('room.number = :number');
+        parameters['number'] = number;
       }
 
       const minPriceNumber =
@@ -166,12 +171,6 @@ export class RoomRepository {
     };
   }
 
-  // async getAllRooms() {
-  //   return await this.roomRepository.find({
-  //     relations: ['features'],
-  //   });
-  // }
-
   async getRoomById(id: string) {
     const room = await this.roomRepository.findOne({
       where: {
@@ -196,11 +195,141 @@ export class RoomRepository {
     return [room, availableServices];
   }
 
-  async updateRoom(id: string, body: UpdateRoomDto) {
+  async getRoomByIdAdmin(id: string) {
+    const room = await this.roomRepository.findOne({
+      where: { id },
+      relations: ['features'],
+    });
+
+    if (!room) {
+      throw new NotFoundException('Room not found');
+    }
+
+    const availableFeatures = await this.featuresRepository.find({
+      where: {
+        id: Not(In(room.features.map((feature) => feature.id))),
+      },
+    });
+
+    return {
+      room,
+      availableFeatures,
+    };
+  }
+
+  async updateRoom(id: string, body: UpdateRoomDto, applyToAll?: string) {
+    // Buscamos la habitación por ID
     const room = await this.roomRepository.findOneBy({ id });
     if (!room) {
       throw new NotFoundException('Room not found');
     }
+
+    if (body.featuresIds && !applyToAll) {
+      throw new ConflictException(
+        'applyToAll must be here if featuresIds is provided',
+      );
+    } else if (body.number && applyToAll) {
+      throw new ConflictException(
+        'applyToAll cannot be here if number is provided',
+      );
+    }
+
+    // Manejo de la lógica para actualizar todas las habitaciones de una categoría
+    if (applyToAll) {
+      const rooms = await this.roomRepository.find({
+        where: { category: room.category },
+        relations: ['features'],
+      });
+
+      if (body.featuresIds) {
+        const features = await this.featuresRepository.find({
+          where: { id: In(body.featuresIds) },
+        });
+
+        if (body.featuresToDelete) {
+          features.forEach((feature) => {
+            body.featuresToDelete.forEach((featureToDelete) => {
+              if (feature.name === featureToDelete) {
+                throw new ConflictException(
+                  `You can't add and delete the same feature: ${feature.name}`,
+                );
+              }
+            });
+          });
+        }
+
+        if (features.length !== body.featuresIds.length) {
+          throw new NotFoundException('One or more features not found');
+        }
+
+        rooms.forEach((room) => {
+          const existingFeaturesIds = room.features.map(
+            (feature) => feature.id,
+          );
+          const duplicateFeatures = body.featuresIds.filter((featureId) =>
+            existingFeaturesIds.includes(featureId),
+          );
+
+          if (duplicateFeatures.length > 0) {
+            throw new ConflictException(
+              `Feature(s) with id(s) ${duplicateFeatures.join(
+                ', ',
+              )} already exist(s) in room ${room.id}`,
+            );
+          }
+
+          room.features = [...room.features, ...features];
+        });
+      }
+
+      if (body.featuresToDelete) {
+        const featuresToRemove = await this.featuresRepository.find({
+          where: { name: In(body.featuresToDelete) },
+        });
+
+        if (featuresToRemove.length !== body.featuresToDelete.length) {
+          throw new NotFoundException(
+            'One or more features to delete not found',
+          );
+        }
+
+        rooms.forEach((room) => {
+          room.features = room.features.filter(
+            (feature) =>
+              !featuresToRemove.find(
+                (featureToRemove) => feature.id === featureToRemove.id,
+              ),
+          );
+        });
+      }
+
+      const { price, number, category, image } = body;
+      const changes = { price, number, category, image };
+
+      rooms.forEach((room) => {
+        this.roomRepository.merge(room, changes);
+      });
+
+      return await this.roomRepository.save(rooms);
+    }
+
+    if (body.featuresToDelete) {
+      const featuresToRemove = await this.featuresRepository.find({
+        where: { name: In(body.featuresToDelete) },
+      });
+
+      if (featuresToRemove.length !== body.featuresToDelete.length) {
+        throw new NotFoundException('One or more features to delete not found');
+      }
+
+      room.features = room.features.filter(
+        (feature) =>
+          !featuresToRemove.find(
+            (featureToRemove) => feature.id === featureToRemove.id,
+          ),
+      );
+    }
+
     return await this.roomRepository.save({ ...room, ...body });
   }
 
