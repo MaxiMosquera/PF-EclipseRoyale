@@ -15,6 +15,9 @@ import { CreateUserDto } from 'src/dtos/user.dtos';
 import { User } from 'src/entities/user.entity';
 import { AuthRepository } from 'src/repositories/auth.repository';
 import { Request, Response } from 'express'; // Importar desde 'express'
+import { config as dotenvConfig } from 'dotenv';
+
+dotenvConfig({ path: '.env' });
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -65,4 +68,13 @@ export class AuthController {
       `https://front-hotel-app-six.vercel.app/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
     );
   }
+
+  @Get('test')
+  async logout(): Promise<string> {
+    // i verifi if the variable is defined
+    const variable = process.env.GOOGLE_AUTH_CB_URL;
+
+    return variable ? 'OK' : 'FAIL';
+  }
 }
+// a
