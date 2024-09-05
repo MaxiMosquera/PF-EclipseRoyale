@@ -72,6 +72,7 @@ export class RoomController {
     @Query('minPrice') minPrice?: number,
     @Query('startingDate') startingDate?: string,
     @Query('endingDate') endingDate?: string,
+    @Query('number') number?: number,
   ): Promise<any> {
     const filters = {
       category,
@@ -79,6 +80,7 @@ export class RoomController {
       maxPrice,
       startingDate,
       endingDate,
+      number,
     };
 
     return await this.roomRepository.getAllRooms(page, limit, filters);
@@ -101,6 +103,20 @@ export class RoomController {
   }
 
   @ApiOperation({
+    summary: 'Delete room by ID',
+    description: 'Delete a specific room by its ID.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the room to delete',
+    type: String,
+  })
+  @Get('getRoomByIdAdmin/:id')
+  async deleteRoom(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.roomRepository.getRoomByIdAdmin(id);
+  }
+
+  @ApiOperation({
     summary: 'Update room details',
     description: 'Update the details of a specific room by its ID.',
   })
@@ -117,8 +133,9 @@ export class RoomController {
   async updateRoom(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: UpdateRoomDto,
-  ): Promise<Room> {
-    return await this.roomRepository.updateRoom(id, body);
+    @Query('applyToAll') applyToAll?: string,
+  ): Promise<Room | Room[]> {
+    return await this.roomRepository.updateRoom(id, body, applyToAll);
   }
 
   @ApiOperation({

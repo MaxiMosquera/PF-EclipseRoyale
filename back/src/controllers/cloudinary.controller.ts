@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   FileTypeValidator,
   MaxFileSizeValidator,
@@ -58,6 +59,7 @@ export class CloudinaryController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadRoomImage(
     @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: any,
     @UploadedFile(
       new ParseFilePipe({
         // Validación del tipo de archivo
@@ -72,9 +74,11 @@ export class CloudinaryController {
       }),
     )
     file: Express.Multer.File, // Validación del archivo , lo bautizo como FILE a lo que recibo por body(parametro)
-  ): Promise<Room> {
+  ): Promise<Room | Room[]> {
     await this.roomRepository.getRoomById(id);
     const image = await this.cloudinaryService.uploadImage(file);
-    return await this.roomRepository.updateRoom(id, { image: image.url });
+    return await this.roomRepository.updateRoom(id, {
+      image: image.url,
+    });
   }
 }

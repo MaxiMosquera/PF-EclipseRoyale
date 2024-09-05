@@ -4,14 +4,14 @@ import { CreateServiceDto } from 'src/dtos/service.dtos';
 export const services: CreateServiceDto[] = [
   {
     price: 50,
-    type: Type.BREAKFAST,
+    name: Type.BREAKFAST,
   },
   {
     price: 100,
-    type: Type.HOTELBAR,
+    name: Type.HOTELBAR,
   },
   {
     price: 200,
-    type: Type.SPA,
+    name: Type.SPA,
   },
 ];

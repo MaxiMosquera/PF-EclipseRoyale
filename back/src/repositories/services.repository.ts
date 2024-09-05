@@ -20,7 +20,7 @@ export class ServiceRepository implements OnModuleInit {
   async onModuleInit() {
     for (const service of services) {
       const exists = await this.serviceRepository.findOneBy({
-        type: service.type,
+        name: service.name,
       });
       if (!exists) {
         const newService = await this.serviceRepository.create({
@@ -34,7 +34,7 @@ export class ServiceRepository implements OnModuleInit {
 
   async createService(body: CreateServiceDto) {
     const exists = await this.serviceRepository.findOneBy({
-      type: body.type,
+      name: body.name,
     });
 
     if (exists) {
@@ -65,7 +65,7 @@ export class ServiceRepository implements OnModuleInit {
     });
   }
 
-  async getServiceById(id: string) :Promise <Service> {
+  async getServiceById(id: string): Promise<Service> {
     const service = await this.serviceRepository.findOneBy({ id });
     if (!service) {
       throw new NotFoundException('Service not found');

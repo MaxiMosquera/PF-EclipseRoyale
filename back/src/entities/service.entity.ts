@@ -8,7 +8,13 @@ import {
 import { v4 as uuid } from 'uuid';
 import { Reservation } from './reservation.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { ReservationService } from './s-r.entity';
 import { Type } from 'src/enum/service.enums';
 
@@ -26,13 +32,13 @@ export class Service {
   price: number;
 
   @ApiProperty({
-    description: 'Service type',
-    example: 'BREAKFAST',
+    description: 'Service name',
+    example: 'breakfast',
   })
-  @Column({ nullable: false, type: 'enum', enum: Type })
+  @Column({ nullable: false, type: 'varchar' })
   @IsNotEmpty()
-  @IsEnum(Type)
-  type: Type;
+  @IsString()
+  name: string;
 
   @ApiProperty({
     description: 'List of reservations associated with this service.',

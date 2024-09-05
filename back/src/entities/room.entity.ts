@@ -12,7 +12,14 @@ import { v4 as uuid } from 'uuid';
 import { Reservation } from './reservation.entity';
 import { Features } from './features.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 @Entity({ name: 'rooms' })
 export class Room {
@@ -40,7 +47,7 @@ export class Room {
   category: Category;
 
   @ApiProperty({ description: "Room's image" })
-  @Column( 'simple-array', { nullable: true })
+  @Column('simple-array', { nullable: true })
   @IsOptional()
   @IsString()
   images?: string[];
@@ -50,7 +57,7 @@ export class Room {
   reservations: Reservation[];
 
   @ApiProperty({ description: "Room's features" })
-  @ManyToMany(() => Features, (features) => features.rooms) // Asegúrate de que esto esté correcto
-  @JoinTable() // Asegúrate de que esto esté presente si usas una tabla de unión
+  @ManyToMany(() => Features, (features) => features.rooms)
+  @JoinTable()
   features: Features[];
 }
