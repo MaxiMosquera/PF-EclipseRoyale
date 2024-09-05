@@ -47,14 +47,15 @@ export class UpdateRoomDto {
   @IsEnum(Category)
   category?: Category;
 
-  @ApiProperty({ description: 'The id of the reservation' })
-  @IsOptional()
-  @IsUUID()
-  reservationId?: string;
-
   @ApiProperty({ description: 'The id of the features of the room' })
   @IsOptional()
   featuresIds?: string[];
+
+  @ApiProperty({
+    description: 'The names of the features to delete of the room',
+  })
+  @IsOptional()
+  featuresToDelete?: string[];
 }
 
 export class CreateFeatureDto {

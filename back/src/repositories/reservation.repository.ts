@@ -370,7 +370,7 @@ export class ReservationRepository {
 
     for (const serviceType of body.services) {
       const serviceEntity = await this.serviceRepository.findOne({
-        where: { type: serviceType },
+        where: { name: serviceType },
       });
 
       if (!serviceEntity) {

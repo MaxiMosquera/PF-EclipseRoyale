@@ -103,12 +103,33 @@ export class UserRepository implements OnModuleInit {
     return await this.userRepository.findOneBy({ email });
   }
 
-  async deleteUser(id: string): Promise<string> {
+  async giveEmployeeRole(id: string): Promise<User> {
     const user: User = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    await this.userRepository.delete(id);
-    return 'User deleted';
+    user.role = Role.EMPLOYEE;
+    await this.userRepository.save(user);
+    return user;
+  }
+
+  async suspendUser(id: string): Promise<string> {
+    const user: User = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    user.status = Status.SUSPENDED;
+    await this.userRepository.save(user);
+    return 'User suspended';
+  }
+
+  async restoreUser(id: string): Promise<string> {
+    const user: User = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    user.status = Status.ACTIVE;
+    await this.userRepository.save(user);
+    return 'User restored';
   }
 }

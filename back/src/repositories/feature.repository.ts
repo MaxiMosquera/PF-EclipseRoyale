@@ -51,8 +51,6 @@ export class FeatureRepository implements OnModuleInit {
         const foundFeature = await this.featureRepository.findOne({
           where: { name: feature.name },
         });
-        if (feature.name === 'Vista al Mar') {
-        }
         if (foundFeature) {
           foundFeatures.push(foundFeature);
         } else {
