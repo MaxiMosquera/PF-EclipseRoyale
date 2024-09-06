@@ -12,12 +12,21 @@ export class MailService {
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: "maximiliano.mosquera1@gmail.com",
+        pass: "02324aaA",
       },
     });
   }
 
+  async prueba(): Promise<void> {
+    const mailOptions = {
+      from: "maximiliano.mosquera1@gmail.com", // Remitente
+      to: 'indisardi99@gmail.com', // Destinatario
+      subject: 'Prueba', // Asunto
+     
+      html: 'Prueba', // Texto en HTML
+    };
+  }
   // Método para enviar el correo de confirmación
 
   async sendUserConfirmation(user: User): Promise<void> {
