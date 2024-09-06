@@ -34,7 +34,7 @@ export class AuthRepository {
     });
     await this.userRepository.save(user);
 
-    //await this.mailService.sendUserConfirmation(user);
+    await this.mailService.sendUserConfirmation(user);
 
     return user;
   }
