@@ -156,3 +156,37 @@ export const AddFeatureApiResponse: ApiResponseOptions = {
     ],
   },
 };
+
+export const CreateFeatureApiResponse: ApiResponseOptions = {
+  status: 201,
+  description: 'Successful response with feature details',
+  schema: {
+    example: {
+      id: 'e5b17783-e80d-4908-9459-33c1495276f5',
+      name: 'Sea View'
+    },
+  },
+};
+
+export const UpdateFeatureApiResponse: ApiResponseOptions = {
+  status: 200,
+  description: 'Successful response with updated feature details',
+  schema: {
+    example: {
+      id: 'e5b17783-e80d-4908-9459-33c1495276f5',
+      name: 'Sea View Updated'
+    },
+  },
+};
+
+export const DeleteRoomApiResponse: ApiResponseOptions = {
+  status: 200,
+  description: 'Room successfully deleted',
+  schema: {
+    example: {
+      message: 'Room with id e5b17783-e80d-4908-9459-33c1495276f5 has been deleted successfully'
+    },
+  },
+};
+
+
