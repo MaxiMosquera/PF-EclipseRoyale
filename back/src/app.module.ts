@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -14,10 +12,10 @@ import { ServiceModule } from './modules/service.module';
 import { FeatureModule } from './modules/feature.module';
 import { CloudinaryModule } from './modules/cloudinary.module';
 import { ReservationModule } from './modules/reservation.module';
-import { MailService } from './services/mail.service';
 import { MailModule } from './modules/mail.module';
 import { MercadopagoModule } from './modules/mercadoPago.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ChatbotModule } from './modules/chatbot.module';
 
 @Module({
   imports: [
@@ -43,6 +41,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     ReservationModule,
     MailModule,
     MercadopagoModule,
+    ChatbotModule
   ],
   controllers: [AppController],
   providers: [AppService],

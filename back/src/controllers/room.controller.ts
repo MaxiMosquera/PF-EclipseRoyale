@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -24,6 +25,7 @@ import {
 } from 'src/dtos/room.dtos';
 import {
   AddFeatureApiResponse,
+  DeleteRoomApiResponse,
   getAllRoomsApiResponse,
   GetAllRoomsResponseDto,
   getRoomByIdApiResponse,
@@ -111,9 +113,10 @@ export class RoomController {
     description: 'UUID of the room to delete',
     type: String,
   })
-  @Get('getRoomByIdAdmin/:id')
+  @ApiResponse(DeleteRoomApiResponse)
+  @Delete('deleteRoomByIdAdmin/:id')
   async deleteRoom(@Param('id', ParseUUIDPipe) id: string) {
-    return await this.roomRepository.getRoomByIdAdmin(id);
+    return await this.roomRepository.deleteRoom(id);
   }
 
   @ApiOperation({
