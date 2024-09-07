@@ -7,8 +7,18 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
-import { createServiceApiResponse, getServiceByIdApiResponse, updateServiceByIdApiResponse } from 'src/dtos/responses.dtos/serviceResponses.dtos';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  ApiBody,
+  ApiResponse,
+} from '@nestjs/swagger';
+import {
+  createServiceApiResponse,
+  getServiceByIdApiResponse,
+  updateServiceByIdApiResponse,
+} from 'src/dtos/responses.dtos/serviceResponses.dtos';
 import { CreateServiceDto } from 'src/dtos/service.dtos';
 import { Service } from 'src/entities/service.entity';
 import { ServiceRepository } from 'src/repositories/services.repository';
@@ -17,6 +27,11 @@ import { ServiceRepository } from 'src/repositories/services.repository';
 @Controller('services')
 export class ServiceController {
   constructor(private readonly serviceRepository: ServiceRepository) {}
+
+  @Get('getAllServices')
+  async getAllServices(): Promise<Service[]> {
+    return await this.serviceRepository.getAllServices();
+  }
 
   @ApiOperation({
     summary: 'Get a service by ID',
@@ -28,7 +43,6 @@ export class ServiceController {
     type: String,
   })
   @ApiResponse(getServiceByIdApiResponse)
-
   @Get(':id')
   async getServiceById(
     @Param('id', ParseUUIDPipe) id: string,
@@ -65,7 +79,7 @@ export class ServiceController {
   @ApiResponse(updateServiceByIdApiResponse)
   @Put('updateService/:id')
   async updateService(
-    @Param('id', ParseUUIDPipe) id:string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() body: Partial<CreateServiceDto>,
   ) {
     return await this.serviceRepository.updateService(id, body);

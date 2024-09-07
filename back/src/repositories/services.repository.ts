@@ -32,6 +32,10 @@ export class ServiceRepository implements OnModuleInit {
     }
   }
 
+  async getAllServices(): Promise<Service[]> {
+    return await this.serviceRepository.find();
+  }
+
   async createService(body: CreateServiceDto) {
     const exists = await this.serviceRepository.findOneBy({
       name: body.name,

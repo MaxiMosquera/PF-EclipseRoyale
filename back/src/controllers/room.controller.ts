@@ -166,6 +166,16 @@ export class RoomController {
   @ApiResponse(AddFeatureApiResponse)
   @Put('addFeatures/:id')
   async addFeatures(@Param('id', ParseUUIDPipe) id: string, @Body() body: any) {
-    return await this.roomRepository.addFeatures(id, body.featureId);
+    return await this.roomRepository.addFeatures(id, body.featuresId);
+  }
+
+  @Get('getInfoToCreate')
+  async getInfoToCreate() {
+    return await this.roomRepository.getInfoToCreate();
+  }
+
+  @Get('getRoomByNumber')
+  async getRoomByNumber(@Query('number') number: number) {
+    return await this.roomRepository.getRoomByNumber(number);
   }
 }
