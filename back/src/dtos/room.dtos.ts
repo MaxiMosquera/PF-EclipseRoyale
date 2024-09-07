@@ -23,8 +23,8 @@ export class CreateRoomDto {
 
   @ApiProperty({ description: 'The category of the room' })
   @IsNotEmpty()
-  @IsEnum(Category)
-  category: Category;
+  @IsString()
+  category: string;
 }
 
 export class UpdateRoomDto {
@@ -47,9 +47,9 @@ export class UpdateRoomDto {
   @IsEnum(Category)
   category?: Category;
 
-  @ApiProperty({ description: 'The id of the features of the room' })
+  @ApiProperty({ description: 'The names of the features of the room' })
   @IsOptional()
-  featuresIds?: string[];
+  featuresNames?: string[];
 
   @ApiProperty({
     description: 'The names of the features to delete of the room',

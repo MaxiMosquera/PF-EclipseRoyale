@@ -4,12 +4,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserDto } from 'src/dtos/user.dtos';
+import { CreateEmployeeDto, CreateUserDto } from 'src/dtos/user.dtos';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from 'src/services/mail.service';
+import { Role } from 'src/enum/user.enums';
 
 @Injectable()
 export class AuthRepository {
@@ -38,6 +39,27 @@ export class AuthRepository {
     await this.mailService.sendUserConfirmation(user);
 
     console.log('user created');
+
+    return user;
+  }
+
+  async registerEmployee(body: CreateEmployeeDto): Promise<User> {
+    const existingUser = await this.userRepository.findOne({
+      where: { email: body.email },
+    });
+    if (existingUser) {
+      throw new BadRequestException('User already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(body.password, 10);
+    const user = this.userRepository.create({
+      ...body,
+      role: Role.EMPLOYEE,
+      password: hashedPassword,
+    });
+    await this.userRepository.save(user);
+
+    //await this.mailService.sendUserConfirmation(user);
 
     return user;
   }

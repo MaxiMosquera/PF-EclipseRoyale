@@ -41,10 +41,10 @@ export class Room {
   price: number;
 
   @ApiProperty({ description: "Room's category" })
-  @Column({ nullable: false, type: 'enum', enum: Category, unique: false })
-  @IsEnum(Category)
+  @Column({ nullable: false, type: 'varchar' })
+  @IsString()
   @IsNotEmpty()
-  category: Category;
+  category: string;
 
   @ApiProperty({ description: "Room's image" })
   @Column('simple-array', { nullable: true })
