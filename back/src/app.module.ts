@@ -20,7 +20,6 @@ import { ChatbotModule } from './modules/chatbot.module';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    ,
     ConfigModule.forRoot({ isGlobal: true, load: [typeormConfig] }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
