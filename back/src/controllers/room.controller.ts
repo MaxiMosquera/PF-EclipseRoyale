@@ -141,6 +141,11 @@ export class RoomController {
     return await this.roomRepository.updateRoom(id, body, applyToAll);
   }
 
+  @Get('getRoomByIdAdmin/:id')
+  async getRoomByIdAdmin(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.roomRepository.getRoomByIdAdmin(id);
+  }
+
   @ApiOperation({
     summary: 'Create a new room',
     description: 'Create a new room with the provided details.',
