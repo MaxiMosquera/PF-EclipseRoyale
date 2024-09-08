@@ -20,15 +20,9 @@ async function bootstrap() {
     origin: [
       'http://localhost:3001',
 
-
-
-
-
-
       'https://front-hotel-app-delta.vercel.app',
       'https://front-hotel-app-six.vercel.app',
       'https://front-hotel-app-tawny.vercel.app',
-
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
@@ -37,7 +31,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpErrorFilter());
   const port = process.env.DB_PORT || 3000;
-  await app.listen(port);
-  console.log(`Application is running on: ${await app.getUrl()}`)
+  await app.listen(3000);
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
