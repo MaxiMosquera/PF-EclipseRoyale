@@ -58,6 +58,8 @@ export class UserController {
     description: 'List of users retrieved successfully',
     schema: GetAllUsersResponseSchema,
   })
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
   @Get()
   async getUsers(
     @Query('page') page: number = 1,
@@ -148,8 +150,8 @@ export class UserController {
       example: 'User suspended',
     },
   })
-  // @Roles(Role.ADMIN, Role.EMPLOYEE)
-  // @UseGuards(AuthGUard, AdminGuard)
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
   @Put('suspend/:id')
   async suspendUser(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
     return await this.userRepository.suspendUser(id);
@@ -171,8 +173,8 @@ export class UserController {
       example: 'User suspended',
     },
   })
-  // @Roles(Role.ADMIN, Role.EMPLOYEE)
-  // @UseGuards(AuthGUard, AdminGuard)
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
   @Put('restore/:id')
   async restoreUser(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
     return await this.userRepository.restoreUser(id);
