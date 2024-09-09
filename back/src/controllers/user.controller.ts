@@ -127,7 +127,7 @@ export class UserController {
   })
   @Roles(Role.ADMIN)
   @UseGuards(AuthGUard, AdminGuard)
-  @Put(':id')
+  @Put('employee/:id')
   async giveEmployeeRole(@Param('id', ParseUUIDPipe) id: string) {
     return await this.userRepository.giveEmployeeRole(id);
   }
@@ -148,9 +148,9 @@ export class UserController {
       example: 'User suspended',
     },
   })
-  @Roles(Role.ADMIN, Role.EMPLOYEE)
-  @UseGuards(AuthGUard, AdminGuard)
-  @Put(':id')
+  // @Roles(Role.ADMIN, Role.EMPLOYEE)
+  // @UseGuards(AuthGUard, AdminGuard)
+  @Put('suspend/:id')
   async suspendUser(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
     return await this.userRepository.suspendUser(id);
   }
@@ -171,9 +171,9 @@ export class UserController {
       example: 'User suspended',
     },
   })
-  @Roles(Role.ADMIN, Role.EMPLOYEE)
-  @UseGuards(AuthGUard, AdminGuard)
-  @Put(':id')
+  // @Roles(Role.ADMIN, Role.EMPLOYEE)
+  // @UseGuards(AuthGUard, AdminGuard)
+  @Put('restore/:id')
   async restoreUser(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
     return await this.userRepository.restoreUser(id);
   }

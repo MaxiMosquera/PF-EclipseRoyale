@@ -9,12 +9,20 @@ import { CreateServiceDto } from 'src/dtos/service.dtos';
 import { Service } from 'src/entities/service.entity';
 import { Repository } from 'typeorm';
 import { services } from 'src/utils/services';
+import { MonthlyProfit } from 'src/entities/monthlyProfit.entity';
+import { ProfitDto } from 'src/dtos/profit.dto';
+import { Reservation } from 'src/entities/reservation.entity';
+import { MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 
 @Injectable()
 export class ServiceRepository implements OnModuleInit {
   constructor(
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
+    @InjectRepository(MonthlyProfit)
+    private readonly monthlyProfitRepository: Repository<MonthlyProfit>,
+    @InjectRepository(Reservation)
+    private readonly reservationRepository: Repository<Reservation>,
   ) {}
 
   async onModuleInit() {
@@ -76,5 +84,26 @@ export class ServiceRepository implements OnModuleInit {
     } else {
       return service;
     }
+  }
+
+  async getMonthlyProfit(body: ProfitDto) {
+    const monthlyProfit = await this.monthlyProfitRepository.findOneBy({
+      month: body.month,
+      year: body.year,
+    });
+
+    if (!monthlyProfit) {
+      throw new NotFoundException('Monthly profit not found');
+    }
+
+    const reservationsOnThisMonth = await this.reservationRepository.find({
+      where: {
+        startDate: MoreThanOrEqual(new Date(body.year, body.month - 1, 1)),
+        endDate: LessThanOrEqual(new Date(body.year, body.month, 0)),
+      },
+      relations: ['user', 'room'],
+    });
+
+    return { monthlyProfit, reservationsOnThisMonth };
   }
 }

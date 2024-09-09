@@ -286,25 +286,13 @@ export class ReservationRepository {
   }
 
   async checkin(id: string, body: CreateReservationDto) {
+    console.log(body);
+
     const isInvalidDate =
       !body.startDate || !body.endDate || (body.startDate && !body.endDate);
 
     if (isInvalidDate) {
       throw new ConflictException('Invalid date');
-    }
-
-    if (body.services) {
-      body.services = body.services.map((service) => {
-        const lowerCaseService = service.toLowerCase(); // Convertir a minúsculas
-        const enumValue = Object.values(Type).find(
-          (value) => value === lowerCaseService,
-        );
-
-        if (!enumValue) {
-          throw new ConflictException(`Invalid service type: ${service}`);
-        }
-        return enumValue as Type;
-      });
     }
 
     const user = await this.userRepository.findOne({ where: { id } });
@@ -398,7 +386,7 @@ export class ReservationRepository {
     if (!monthlyProfit) {
       await this.monthlyProfitRepository.save({
         year: startDate.getFullYear(),
-        month: startDate.getMonth() + 1,
+        month: startDate.getMonth(),
         profit: totalPrice,
       });
     } else {

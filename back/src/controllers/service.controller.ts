@@ -14,6 +14,7 @@ import {
   ApiBody,
   ApiResponse,
 } from '@nestjs/swagger';
+import { ProfitDto } from 'src/dtos/profit.dto';
 import {
   createServiceApiResponse,
   getServiceByIdApiResponse,
@@ -83,5 +84,22 @@ export class ServiceController {
     @Body() body: Partial<CreateServiceDto>,
   ) {
     return await this.serviceRepository.updateService(id, body);
+  }
+
+  @ApiOperation({
+    summary: 'Get monthly profit',
+    description: 'Retrieve the monthly profit for a given month and year.',
+  })
+  @ApiBody({
+    type: ProfitDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved the monthly profit.',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid request.' })
+  @Post('getMonthlyProfit')
+  async getMonthlyProfit(@Body() body: ProfitDto) {
+    return await this.serviceRepository.getMonthlyProfit(body);
   }
 }
