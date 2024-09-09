@@ -397,7 +397,7 @@ export class ReservationRepository {
     await this.reservationRepository.save(reservation);
 
     //agregar email reserva
-    //await this.emailService.sendReservationemail(user.email, user.name);
+    await this.emailService.sendReservationemail(user.email, user.name);
 
     return reservation;
   }
