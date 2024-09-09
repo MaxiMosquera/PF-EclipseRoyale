@@ -24,6 +24,7 @@ import {
   LessThan,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Not,
   Repository,
 } from 'typeorm';
 import { equal } from 'assert';
@@ -99,6 +100,10 @@ export class ReservationRepository {
     for (const reservation of reservationsToStart) {
       reservation.status = ReservationStatus.IN_PROGRESS;
       await this.reservationRepository.save(reservation);
+
+      const room = reservation.room;
+      room.isBooked = true;
+      await this.roomRepository.save(room);
     }
   }
 
@@ -311,6 +316,20 @@ export class ReservationRepository {
     }
   }
 
+  //verificar si la habitacion esta disp cuando el usuario intenta hacer una reserva
+  async checkAvailability(roomId: string, startDate: Date, endDate: Date): Promise<boolean> {
+    const reservations = await this.reservationRepository.find({
+      where: {
+        room: { id: roomId },
+        status: Not(ReservationStatus.CANCELED),
+        startDate: LessThanOrEqual(endDate),
+        endDate: MoreThanOrEqual(startDate),
+      },
+    });
+  
+    return reservations.length === 0;
+  }
+
   async checkin(id: string, body: CreateReservationDto) {
     const isInvalidDate =
       !body.startDate || !body.endDate || (body.startDate && !body.endDate);
@@ -394,6 +413,12 @@ export class ReservationRepository {
     } else if (days > 30) {
       throw new ConflictException('Maximum reservation duration is 30 days');
     }
+
+     // Verifica si la habitación está disponible en las fechas solicitadas
+    const isAvailable = await this.checkAvailability(room.id, startDate, endDate);
+    if (!isAvailable) {
+    throw new ConflictException('Room is not available for the selected dates');
+   }
 
     const actuallyActiveReservation = await this.reservationRepository.findOne({
       where: { user: user, status: ReservationStatus.IN_PROGRESS },// pablo, aca no seria status paid?
@@ -504,6 +529,11 @@ export class ReservationRepository {
     reservation.status = ReservationStatus.PAID;
     await this.reservationRepository.save(reservation);
 
+    const room = reservation.room;
+    room.isBooked = true;
+    room.isAvailable = false; // Opcional: marca la habitación como no disponible
+    await this.roomRepository.save(room);
+
     return reservation;
   }
 
@@ -522,6 +552,11 @@ export class ReservationRepository {
 
     reservation.status = ReservationStatus.CANCELED;
     await this.reservationRepository.save(reservation);
+
+    // Actualiza el estado de la habitación para marcarla como disponible
+    const room = reservation.room;
+    room.isAvailable = true; // Asegúrate de tener un campo para gestionar la disponibilidad
+    await this.roomRepository.save(room);
 
     return reservation;
   }

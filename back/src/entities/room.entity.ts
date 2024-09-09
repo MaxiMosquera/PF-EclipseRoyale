@@ -52,6 +52,14 @@ export class Room {
   @IsString()
   images?: string[];
 
+  @ApiProperty({ description: "Room's availability" })
+  @Column({ default: true }) // Valor predeterminado, puede ser true o false
+  isAvailable: boolean;
+
+  @ApiProperty({ description: "Room's booking status" })
+  @Column({ default: false }) // Valor predeterminado, puede ser true o false
+  isBooked: boolean;
+
   @ApiProperty({ description: "Room's reservation ID" })
   @OneToMany(() => Reservation, (reservation) => reservation.room)
   reservations: Reservation[];
