@@ -64,14 +64,4 @@ export class CreateEmployeeDto {
   @IsString()
   @MinLength(8)
   readonly password: string;
-
-  @ApiProperty({ description: 'User role', example: 'ADMIN' })
-  @IsOptional()
-  @IsEnum(Role)
-  readonly role?: Role;
-
-  @ApiProperty({ description: 'User status', example: 'ACTIVE' })
-  @IsOptional()
-  @IsEnum(Status)
-  readonly status?: Status;
 }
