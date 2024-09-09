@@ -22,10 +22,10 @@ export class MailService {
 
   async prueba(): Promise<void> {
     const mailOptions = {
-      from: "maximiliano.mosquera1@gmail.com", // Remitente
+      from: 'maximiliano.mosquera1@gmail.com', // Remitente
       to: 'indisardi99@gmail.com', // Destinatario
       subject: 'Prueba', // Asunto
-     
+
       html: 'Prueba', // Texto en HTML
     };
   }
@@ -253,6 +253,131 @@ export class MailService {
     </div>
   </body>
   </html>`, // HTML del cuerpo del correo
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
+
+  async sendAdminWelcome(user: User, password: string): Promise<void> {
+    const mailOptions = {
+      from: '"Hotel Eclipse Royale" <contactoeclipseroyale@gmail.com>', // Remitente
+      to: user.email, // Destinatario
+      subject: 'Bienvenido a Hotel Eclipse Royale', // Asunto
+      text: '¡Bienvenido al equipo!', // Texto en plano
+      html: `<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border: 1px solid #e1e1e1;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #000000;
+        color: #ffffff;
+        padding: 20px;
+        text-align: center;
+        border-radius: 8px 8px 0 0;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .content {
+        padding: 20px;
+        text-align: center;
+      }
+      .content h2 {
+        color: #000000;
+        font-size: 20px;
+      }
+      .content p {
+        color: #555555;
+        font-size: 16px;
+        margin: 20px 0;
+      }
+      .credentials {
+        background-color: #f7e5b4;
+        border: 1px solid #d4af37;
+        padding: 10px;
+        margin: 20px 0;
+        border-radius: 5px;
+        text-align: left;
+        color: #000000;
+        font-size: 16px;
+      }
+      .credentials p {
+        margin: 5px 0;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        color: #000000;
+        background: linear-gradient(145deg, #d4af37, #f7e5b4);
+        border: 1px solid #d4af37;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2), -3px -3px 6px rgba(255, 255, 255, 0.5);
+        transition: 0.3s;
+      }
+      .button:hover {
+        background: linear-gradient(145deg, #f7e5b4, #d4af37);
+        box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.2), inset -3px -3px 6px rgba(255, 255, 255, 0.5);
+        color: #000000;
+      }
+      .footer {
+        padding: 20px;
+        text-align: center;
+        background-color: #f1f1f1;
+        color: #999999;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Hotel Eclipse Royale</h1>
+      </div>
+      <div class="content">
+        <h2>¡Bienvenido al equipo, ${user.name}!</h2>
+        <p>Nos complace darte la bienvenida como administrador del Hotel Eclipse Royale. A partir de ahora tendrás acceso a las siguientes características:</p>
+        <ul>
+          <li>Creación y edición de habitaciones, servicios y características.</li>
+          <li>Control y gestión de usuarios.</li>
+          <li>Seguimiento detallado de las ganancias del hotel.</li>
+        </ul>
+        <p>Tus credenciales de acceso son las siguientes:</p>
+        <div class="credentials">
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Password:</strong> ${password}</p>
+        </div>
+        <a href="https://front-hotel-app-six.vercel.app/" class="button">Acceder a la plataforma</a>
+      </div>
+      <div class="footer">
+        <p>&copy; 2024 Hotel Eclipse Royale. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </body>
+</html>
+`, // HTML del cuerpo del correo
     };
 
     await this.transporter.sendMail(mailOptions);

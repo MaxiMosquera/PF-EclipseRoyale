@@ -1,9 +1,9 @@
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'gmailporbody@gmail.com', 
+    user: 'gmailporbody@gmail.com',
     pass: 'passwordgmail',
   },
 });
@@ -14,7 +14,6 @@ const mailOptions = {
   subject: 'Confirmación de registro',
   text: 'Gracias por registrarte en nuestra aplicación. Por favor, confirma tu correo electrónico haciendo clic en el siguiente enlace.',
 };
-
 
 transporter.sendMail(mailOptions, (error, info) => {
   if (error) {
