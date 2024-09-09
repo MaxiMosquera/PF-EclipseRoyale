@@ -331,6 +331,8 @@ export class ReservationRepository {
   }
 
   async checkin(id: string, body: CreateReservationDto) {
+    console.log(body);
+
     const isInvalidDate =
       !body.startDate || !body.endDate || (body.startDate && !body.endDate);
 
@@ -338,6 +340,7 @@ export class ReservationRepository {
       throw new ConflictException('Invalid date');
     }
 
+<<<<<<< HEAD
      // Verificar si la habitación ya está reservada o bloqueada
   const roomLocked = await this.reservationRepository.findOne({
     where: [
@@ -381,6 +384,8 @@ export class ReservationRepository {
       });
     }
 
+=======
+>>>>>>> 5d71e66fa7a4bc63ac69825b2da909d01c594592
     const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
@@ -478,7 +483,7 @@ export class ReservationRepository {
     if (!monthlyProfit) {
       await this.monthlyProfitRepository.save({
         year: startDate.getFullYear(),
-        month: startDate.getMonth() + 1,
+        month: startDate.getMonth(),
         profit: totalPrice,
       });
     } else {

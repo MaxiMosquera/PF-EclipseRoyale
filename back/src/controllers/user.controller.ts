@@ -58,6 +58,8 @@ export class UserController {
     description: 'List of users retrieved successfully',
     schema: GetAllUsersResponseSchema,
   })
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
   @Get()
   async getUsers(
     @Query('page') page: number = 1,
@@ -127,7 +129,7 @@ export class UserController {
   })
   @Roles(Role.ADMIN)
   @UseGuards(AuthGUard, AdminGuard)
-  @Put(':id')
+  @Put('employee/:id')
   async giveEmployeeRole(@Param('id', ParseUUIDPipe) id: string) {
     return await this.userRepository.giveEmployeeRole(id);
   }
@@ -150,7 +152,7 @@ export class UserController {
   })
   @Roles(Role.ADMIN, Role.EMPLOYEE)
   @UseGuards(AuthGUard, AdminGuard)
-  @Put(':id')
+  @Put('suspend/:id')
   async suspendUser(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
     return await this.userRepository.suspendUser(id);
   }
@@ -173,8 +175,13 @@ export class UserController {
   })
   @Roles(Role.ADMIN, Role.EMPLOYEE)
   @UseGuards(AuthGUard, AdminGuard)
-  @Put(':id')
+  @Put('restore/:id')
   async restoreUser(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
     return await this.userRepository.restoreUser(id);
+  }
+
+  @Put('activate/:id')
+  async activateUser(@Param('id', ParseUUIDPipe) id: string): Promise<User> {
+    return await this.userRepository.activateUser(id);
   }
 }

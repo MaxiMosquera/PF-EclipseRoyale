@@ -74,13 +74,6 @@ export class UserRepository implements OnModuleInit {
       throw new NotFoundException('User not found');
     }
 
-    if (
-      (data.password && !data.oldPassword) ||
-      (!data.password && data.oldPassword)
-    ) {
-      throw new BadRequestException('Old & new passwords are required');
-    }
-
     if (data.password && data.oldPassword) {
       const isOldPasswordValid: boolean = await bcrypt.compare(
         data.oldPassword,
@@ -131,5 +124,17 @@ export class UserRepository implements OnModuleInit {
     user.status = Status.ACTIVE;
     await this.userRepository.save(user);
     return 'User restored';
+  }
+
+  async activateUser(id: string): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.status = Status.ACTIVE;
+
+    return await this.userRepository.save(user);
   }
 }

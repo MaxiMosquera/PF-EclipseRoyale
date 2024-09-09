@@ -16,6 +16,10 @@ import { User } from 'src/entities/user.entity';
 import { AuthRepository } from 'src/repositories/auth.repository';
 import { Request, Response } from 'express'; // Importar desde 'express'
 import { config as dotenvConfig } from 'dotenv';
+import { Roles } from 'src/decorators/role.decorator';
+import { Role } from 'src/enum/user.enums';
+import { AuthGUard } from 'src/guards/auth.guard';
+import { AdminGuard } from 'src/guards/admin.guard';
 
 dotenvConfig({ path: '.env' });
 
@@ -30,6 +34,8 @@ export class AuthController {
     return await this.authRepository.register(body);
   }
 
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGUard, AdminGuard)
   @Post('register-employee')
   @RegisterSwagger()
   async registerEmployee(@Body() body: CreateEmployeeDto): Promise<User> {
@@ -59,7 +65,7 @@ export class AuthController {
     const user = await this.authRepository.findByEmail(req.user.email); // Usar el repositorio para buscar el usuario
     const jwt = await this.authRepository.createJwtToken(user);
     if (isNew) {
-       await this.authRepository.sendEmail(createdUser);
+      // await this.authRepository.sendEmail(createdUser);
     }
     const state = {
       user: {
@@ -70,8 +76,8 @@ export class AuthController {
       access_token: jwt,
     };
     res.redirect(
-      `http://localhost:3001/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
-      // `https://front-hotel-app-six.vercel.app/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
+      // `http://localhost:3001/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
+      `https://front-hotel-app-six.vercel.app/auth/google?state=${encodeURIComponent(JSON.stringify(state))}`,
     );
   }
 

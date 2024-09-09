@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -33,6 +34,10 @@ import {
 import { RoomRepository } from 'src/repositories/room.repository';
 import { Room } from 'src/entities/room.entity';
 import { Category } from 'src/enum/room.enums';
+import { Roles } from 'src/decorators/role.decorator';
+import { Role } from 'src/enum/user.enums';
+import { AuthGUard } from 'src/guards/auth.guard';
+import { AdminGuard } from 'src/guards/admin.guard';
 
 @ApiTags('Rooms')
 @Controller('room')
@@ -64,7 +69,6 @@ export class RoomController {
     description: 'Filters to apply when retrieving rooms',
   })
   @ApiResponse(getAllRoomsApiResponse)
-  @Get('getAllRooms')
   @Get('getAllRooms')
   async getAllRooms(
     @Query('page') page: number = 1,
@@ -132,6 +136,8 @@ export class RoomController {
     type: UpdateRoomDto,
   })
   @ApiResponse(getRoomByIdApiResponse)
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
   @Put('updateRoom/:id')
   async updateRoom(
     @Param('id', ParseUUIDPipe) id: string,
@@ -141,6 +147,8 @@ export class RoomController {
     return await this.roomRepository.updateRoom(id, body, applyToAll);
   }
 
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
   @Get('getRoomByIdAdmin/:id')
   async getRoomByIdAdmin(@Param('id', ParseUUIDPipe) id: string) {
     return await this.roomRepository.getRoomByIdAdmin(id);
@@ -154,6 +162,8 @@ export class RoomController {
     type: CreateRoomDto,
   })
   @ApiResponse(getRoomByIdApiResponse)
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
   @Post('createRoom')
   async createRoom(@Body() body: CreateRoomDto) {
     return await this.roomRepository.createRoom(body);
@@ -177,15 +187,17 @@ export class RoomController {
     return await this.roomRepository.addFeatures(id, body.featuresId);
   }
 
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
   @Get('getInfoToCreate')
   async getInfoToCreate() {
     return await this.roomRepository.getInfoToCreate();
   }
 
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
   @Get('getRoomByNumber')
   async getRoomByNumber(@Query('number') number: number) {
     return await this.roomRepository.getRoomByNumber(number);
   }
 }
-// anda medio raro el pull request
-// arreglar el pull request

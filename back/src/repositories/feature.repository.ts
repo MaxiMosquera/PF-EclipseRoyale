@@ -84,6 +84,10 @@ export class FeatureRepository implements OnModuleInit {
     }
   }
 
+  async getAllFeatures() {
+    return await this.featureRepository.find();
+  }
+
   async createFeature(body: CreateFeatureDto) {
     const exists = await this.featureRepository.findOneBy({ name: body.name });
 
