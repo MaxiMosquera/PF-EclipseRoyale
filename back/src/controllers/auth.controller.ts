@@ -59,7 +59,7 @@ export class AuthController {
     const user = await this.authRepository.findByEmail(req.user.email); // Usar el repositorio para buscar el usuario
     const jwt = await this.authRepository.createJwtToken(user);
     if (isNew) {
-      // await this.authRepository.sendEmail(createdUser);
+       await this.authRepository.sendEmail(createdUser);
     }
     const state = {
       user: {
