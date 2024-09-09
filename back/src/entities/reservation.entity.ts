@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -36,6 +37,10 @@ export class Reservation {
   @ApiProperty({ description: 'The start date of the reservation.' })
   @Column({ nullable: false, type: 'date' })
   startDate: Date;
+
+  @ApiProperty({ description: 'The creation date of the reservation.' })
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
 
   @ApiProperty({ description: 'The status of the reservation.' })
   @Column({

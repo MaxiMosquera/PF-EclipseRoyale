@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   CreateReservationDto,
@@ -57,6 +57,32 @@ export class ReservationRepository {
     console.log('Ejecución diaria a las 11:00 PM');
     await this.updateReservationToFinished();
   }
+
+  
+   // Cron para liberar habitaciones bloqueadas temporalmente cada 15 minutos
+   @Cron('*/15 * * * *') // Cada 15 minutos
+  async releaseUnpaidReservations() {
+    const thirtyMinutesAgo = moment().subtract(15, 'minutes').toDate();
+    
+    // Buscar reservas en estado PENDING creadas hace más de 30 minutos
+    const unpaidReservations = await this.reservationRepository.find({
+      where: {
+        status: ReservationStatus.PENDING,
+        createdAt: LessThan(thirtyMinutesAgo), // nuevo campo en la entidad reserva
+      },
+    });
+
+    // Cambiar el estado de las reservas a CANCELED
+    for (const reservation of unpaidReservations) {
+      reservation.status = ReservationStatus.CANCELED; // Cambia el estado a cancelado
+      await this.reservationRepository.save(reservation);
+    }
+
+    console.log(`Reservas no pagadas liberadas correctamente`);
+  }
+
+  
+  
 
   async updateReservationToInProgress(): Promise<void> {
     const localTimezone = 'America/Argentina/Buenos_Aires'; // Ajusta esto a tu zona horaria local
@@ -293,6 +319,35 @@ export class ReservationRepository {
       throw new ConflictException('Invalid date');
     }
 
+     // Verificar si la habitación ya está reservada o bloqueada
+  const roomLocked = await this.reservationRepository.findOne({
+    where: [
+      { room: { id: body.roomId }, status: ReservationStatus.PENDING },
+      { room: { id: body.roomId }, status: ReservationStatus.IN_PROGRESS },
+      { room: { id: body.roomId }, status: ReservationStatus.PAID }
+    ]
+  });
+
+  if (roomLocked) {
+    throw new ConflictException('The room is already reserved or locked.');
+  }
+
+  // Bloquear la habitación temporalmente mientras se procesa el pago
+  const tempReservation = this.reservationRepository.create({
+    room: { id: body.roomId },
+    user: { id },
+    startDate: body.startDate,
+    endDate: body.endDate,
+    status: ReservationStatus.PENDING,
+    guestName1: body.guestName1,
+    guestLastName1: body.guestLastName1,
+    guestName2: body.guestName2,
+    guestLastName2: body.guestLastName2,
+    guestName3: body.guestName3,
+    guestLastName3: body.guestLastName3,
+  });
+  await this.reservationRepository.save(tempReservation);
+
     if (body.services) {
       body.services = body.services.map((service) => {
         const lowerCaseService = service.toLowerCase(); // Convertir a minúsculas
@@ -341,7 +396,7 @@ export class ReservationRepository {
     }
 
     const actuallyActiveReservation = await this.reservationRepository.findOne({
-      where: { user: user, status: ReservationStatus.IN_PROGRESS },
+      where: { user: user, status: ReservationStatus.IN_PROGRESS },// pablo, aca no seria status paid?
     });
 
     if (actuallyActiveReservation) {

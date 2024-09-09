@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { preference } from 'src/config/mercadoPago'; // aca el cambio
-import { ReservationRepository } from 'src/repositories/reservation.repository';
+
 
 @Injectable()
 export class MercadoPagoService {
@@ -20,8 +20,8 @@ export class MercadoPagoService {
         quantity: item.quantity, // numero de habitaciones
       })),
       back_urls: {
-        success: `https://pf-eclipseroyale.onrender.com/mercado-pago/success/${body.items[0].id}`,
-        failure: `https://pf-eclipseroyale.onrender.com/mercado-pago/failure/${body.items[0].id}`,
+        success: `https://pf-eclipseroyale-qd2v.onrender.com/mercado-pago/success/${body.items[0].id}`,
+        failure: `https://pf-eclipseroyale-qd2v.onrender.com/mercado-pago/failure/${body.items[0].id}`,
       },
       auto_return: 'approved',
     };
@@ -36,4 +36,4 @@ export class MercadoPagoService {
     }
   }
 }
-// b
+
