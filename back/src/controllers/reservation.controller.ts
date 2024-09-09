@@ -7,12 +7,17 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/decorators/role.decorator';
 import {
   CreateReservationDto,
   GetReservationsFiltersDto,
 } from 'src/dtos/reservation.dtos';
+import { Role } from 'src/enum/user.enums';
+import { AdminGuard } from 'src/guards/admin.guard';
+import { AuthGUard } from 'src/guards/auth.guard';
 import { ReservationRepository } from 'src/repositories/reservation.repository';
 
 @ApiTags('Reservations')
@@ -108,6 +113,8 @@ export class ReservationController {
     description: 'UUID of the reservation to be checked out',
     type: String,
   })
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
   @Put('checkout/:id')
   async checkout(@Param('id', ParseUUIDPipe) id: string) {
     return await this.reservationRepository.checkout(id);

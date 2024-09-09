@@ -34,9 +34,8 @@ export class AuthRepository {
       password: hashedPassword,
     });
     await this.userRepository.save(user);
-    
 
-    await this.mailService.sendUserConfirmation(user);
+    // await this.mailService.sendUserConfirmation(user);
 
     console.log('user created');
 

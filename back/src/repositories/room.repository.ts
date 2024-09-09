@@ -236,20 +236,15 @@ export class RoomRepository {
       throw new NotFoundException('Room not found');
     }
 
-    if (body.number) {
-      const roomWithNumber = await this.roomRepository.findOneBy({
-        number: body.number,
-      });
-      if (roomWithNumber && roomWithNumber.id !== id) {
-        throw new ConflictException('Room with this number already exists');
-      }
-    }
+    console.log('i am here 1');
 
     if (body.featuresNames && !applyToAll) {
+      console.log('i am here 2');
       throw new ConflictException(
         'applyToAll must be here if featuresNames is provided',
       );
     } else if (body.number && applyToAll) {
+      console.log('i am here 3');
       throw new ConflictException(
         'applyToAll cannot be here if number is provided',
       );

@@ -6,6 +6,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -14,6 +15,8 @@ import {
   ApiBody,
   ApiResponse,
 } from '@nestjs/swagger';
+import { Roles } from 'src/decorators/role.decorator';
+import { ProfitDto } from 'src/dtos/profit.dto';
 import {
   createServiceApiResponse,
   getServiceByIdApiResponse,
@@ -21,6 +24,9 @@ import {
 } from 'src/dtos/responses.dtos/serviceResponses.dtos';
 import { CreateServiceDto } from 'src/dtos/service.dtos';
 import { Service } from 'src/entities/service.entity';
+import { Role } from 'src/enum/user.enums';
+import { AdminGuard } from 'src/guards/admin.guard';
+import { AuthGUard } from 'src/guards/auth.guard';
 import { ServiceRepository } from 'src/repositories/services.repository';
 
 @ApiTags('Services')
@@ -58,6 +64,8 @@ export class ServiceController {
     type: CreateServiceDto,
   })
   @ApiResponse(createServiceApiResponse)
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
   @Post('createService')
   async createService(@Body() body: CreateServiceDto) {
     return await this.serviceRepository.createService(body);
@@ -77,11 +85,32 @@ export class ServiceController {
     description: 'Partial service details to update',
   })
   @ApiResponse(updateServiceByIdApiResponse)
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
   @Put('updateService/:id')
   async updateService(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: Partial<CreateServiceDto>,
   ) {
     return await this.serviceRepository.updateService(id, body);
+  }
+
+  @ApiOperation({
+    summary: 'Get monthly profit',
+    description: 'Retrieve the monthly profit for a given month and year.',
+  })
+  @ApiBody({
+    type: ProfitDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved the monthly profit.',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid request.' })
+  @Roles(Role.ADMIN, Role.EMPLOYEE)
+  @UseGuards(AuthGUard, AdminGuard)
+  @Post('getMonthlyProfit')
+  async getMonthlyProfit(@Body() body: ProfitDto) {
+    return await this.serviceRepository.getMonthlyProfit(body);
   }
 }

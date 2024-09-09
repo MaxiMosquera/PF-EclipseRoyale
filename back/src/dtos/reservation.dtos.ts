@@ -10,7 +10,6 @@ import {
 import { ReservationStatus } from 'src/enum/reservationStatus.enums';
 import { Type } from 'src/enum/service.enums';
 
-
 export class CreateReservationDto {
   @ApiProperty({
     description: 'ID of the room to reserve',
@@ -22,12 +21,12 @@ export class CreateReservationDto {
 
   @ApiPropertyOptional({
     description: 'List of service types for the reservation',
-    enum: Type,
+    example: ['restaurant', 'spa'],
     isArray: true,
   })
   @IsOptional()
-  @IsEnum(Type, { each: true })
-  services?: Type[];
+  @IsString()
+  services?: string[];
 
   @ApiProperty({
     description: 'Start Date of the reservation',
@@ -44,7 +43,6 @@ export class CreateReservationDto {
   @IsInt()
   @IsNotEmpty()
   endDate: Date;
-
 
   @ApiPropertyOptional({ description: 'First name of the first guest' })
   @IsOptional()
@@ -76,22 +74,21 @@ export class CreateReservationDto {
   @IsString()
   guestLastName3?: string;
 
-  @ApiPropertyOptional({ 
-    description: 'Status of the reservation', 
-    enum: ReservationStatus, 
-    default: ReservationStatus.PENDING 
+  @ApiPropertyOptional({
+    description: 'Status of the reservation',
+    enum: ReservationStatus,
+    default: ReservationStatus.PENDING,
   })
   @IsOptional()
   @IsEnum(ReservationStatus)
   status?: ReservationStatus;
 }
 
-
 export class GetReservationsFiltersDto {
-  @ApiPropertyOptional({ 
-    description: 'Status of the reservation', 
-    enum: ReservationStatus, 
-    default: ReservationStatus.PENDING 
+  @ApiPropertyOptional({
+    description: 'Status of the reservation',
+    enum: ReservationStatus,
+    default: ReservationStatus.PENDING,
   })
   @IsOptional()
   @IsEnum(ReservationStatus)
