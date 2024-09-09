@@ -132,4 +132,16 @@ export class UserRepository implements OnModuleInit {
     await this.userRepository.save(user);
     return 'User restored';
   }
+
+  async activateUser(id: string): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.status = Status.ACTIVE;
+
+    return await this.userRepository.save(user);
+  }
 }

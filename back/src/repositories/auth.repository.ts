@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from 'src/services/mail.service';
-import { Role } from 'src/enum/user.enums';
+import { Role, Status } from 'src/enum/user.enums';
 
 @Injectable()
 export class AuthRepository {
@@ -55,10 +55,11 @@ export class AuthRepository {
       ...body,
       role: Role.EMPLOYEE,
       password: hashedPassword,
+      status: Status.ACTIVE,
     });
     await this.userRepository.save(user);
 
-    await this.mailService.sendUserConfirmation(user);
+    await this.mailService.sendAdminWelcome(user, body.password);
 
     return user;
   }

@@ -179,4 +179,9 @@ export class UserController {
   async restoreUser(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
     return await this.userRepository.restoreUser(id);
   }
+
+  @Put('activate/:id')
+  async activateUser(@Param('id', ParseUUIDPipe) id: string): Promise<User> {
+    return await this.userRepository.activateUser(id);
+  }
 }
