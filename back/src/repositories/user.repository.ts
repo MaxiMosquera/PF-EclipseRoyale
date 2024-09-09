@@ -74,13 +74,6 @@ export class UserRepository implements OnModuleInit {
       throw new NotFoundException('User not found');
     }
 
-    if (
-      (data.password && !data.oldPassword) ||
-      (!data.password && data.oldPassword)
-    ) {
-      throw new BadRequestException('Old & new passwords are required');
-    }
-
     if (data.password && data.oldPassword) {
       const isOldPasswordValid: boolean = await bcrypt.compare(
         data.oldPassword,
