@@ -61,9 +61,9 @@ export class ReservationRepository {
 
   
    // Cron para liberar habitaciones bloqueadas temporalmente cada 15 minutos
-   @Cron('*/15 * * * *') // Cada 15 minutos
+   @Cron('*/1 * * * *') // Cada 15 minutos
   async releaseUnpaidReservations() {
-    const thirtyMinutesAgo = moment().subtract(15, 'minutes').toDate();
+    const thirtyMinutesAgo = moment().subtract(1, 'minutes').toDate();
     
     // Buscar reservas en estado PENDING creadas hace más de 30 minutos
     const unpaidReservations = await this.reservationRepository.find({
@@ -340,7 +340,6 @@ export class ReservationRepository {
       throw new ConflictException('Invalid date');
     }
 
-<<<<<<< HEAD
      // Verificar si la habitación ya está reservada o bloqueada
   const roomLocked = await this.reservationRepository.findOne({
     where: [
@@ -361,6 +360,7 @@ export class ReservationRepository {
     startDate: body.startDate,
     endDate: body.endDate,
     status: ReservationStatus.PENDING,
+    
     guestName1: body.guestName1,
     guestLastName1: body.guestLastName1,
     guestName2: body.guestName2,
@@ -384,8 +384,6 @@ export class ReservationRepository {
       });
     }
 
-=======
->>>>>>> 5d71e66fa7a4bc63ac69825b2da909d01c594592
     const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
