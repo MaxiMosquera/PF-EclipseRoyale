@@ -106,6 +106,18 @@ export class AuthRepository {
 
     // If user does not exist, create a new user
     if (!user) {
+      if (lastName === undefined) {
+        const adress = '';
+        user = this.userRepository.create({
+          email,
+          name: `${firstName}`,
+          image: picture,
+          password: '', // You may or may not use this depending on your use case
+          adress: adress,
+        });
+        await this.userRepository.save(user);
+        return { createdUser: user, isNew: true };
+      }
       const adress = '';
       user = this.userRepository.create({
         email,
