@@ -16,17 +16,9 @@ import { ReservationService } from 'src/entities/s-r.entity';
 import { Service } from 'src/entities/service.entity';
 import { User } from 'src/entities/user.entity';
 import { ReservationStatus } from 'src/enum/reservationStatus.enums';
-import { Type } from 'src/enum/service.enums';
 import { MailService } from 'src/services/mail.service';
 import * as moment from 'moment-timezone';
-import {
-  Equal,
-  LessThan,
-  LessThanOrEqual,
-  MoreThanOrEqual,
-  Repository,
-} from 'typeorm';
-import { equal } from 'assert';
+import { Equal, LessThan, Repository } from 'typeorm';
 
 @Injectable()
 export class ReservationRepository {
@@ -44,25 +36,52 @@ export class ReservationRepository {
     private readonly emailService: MailService,
   ) {}
 
-  // Esta función se ejecutará todos los día a las 8:00 AM
   @Cron('0 8 * * *')
   async handleCronMorning() {
     console.log('Ejecución diaria a las 8:00 AM');
     await this.updateReservationToInProgress();
   }
 
-  // Esta función se ejecutará todos los días a las 11:00 PM
   @Cron('0 23 * * *')
   async handleCronNight() {
     console.log('Ejecución diaria a las 11:00 PM');
     await this.updateReservationToFinished();
   }
 
+  @Cron('*/15 * * * *')
+  async releaseUnpaidReservations(): Promise<void> {
+    const fifteenMinutesAgo = moment()
+      .tz('America/Argentina/Buenos_Aires')
+      .subtract(15, 'minutes')
+      .startOf('minute')
+      .toDate();
+
+    console.log(
+      `Buscando reservas creadas antes de: ${fifteenMinutesAgo.toISOString()}`,
+    );
+
+    const unpaidReservations = await this.reservationRepository.find({
+      where: {
+        status: ReservationStatus.PENDING,
+        createdAt: LessThan(fifteenMinutesAgo),
+      },
+    });
+
+    console.log(
+      `Reservas pendientes encontradas: ${unpaidReservations.length}`,
+    );
+
+    unpaidReservations.forEach(async (reservation) => {
+      reservation.status = ReservationStatus.CANCELED;
+      await this.reservationRepository.save(reservation);
+      console.log(`Reserva ${reservation.id} cancelada.`);
+    });
+  }
+
   async updateReservationToInProgress(): Promise<void> {
-    const localTimezone = 'America/Argentina/Buenos_Aires'; // Ajusta esto a tu zona horaria local
+    const localTimezone = 'America/Argentina/Buenos_Aires';
     const today = moment().tz(localTimezone).startOf('day').toDate();
 
-    // Busca las reservas que tienen el startDate exactamente hoy y están en estado PENDING
     const reservationsToStart = await this.reservationRepository.find({
       where: {
         startDate: Equal(today),
@@ -77,10 +96,9 @@ export class ReservationRepository {
   }
 
   async updateReservationToFinished(): Promise<void> {
-    const localTimezone = 'America/Argentina/Buenos_Aires'; // Ajusta esto a tu zona horaria local
+    const localTimezone = 'America/Argentina/Buenos_Aires';
     const today = moment().tz(localTimezone).startOf('day').toDate();
 
-    // Busca las reservas que tienen el endDate exactamente hoy y están en estado IN_PROGRESS
     const reservationsToComplete = await this.reservationRepository.find({
       where: {
         endDate: Equal(today),
@@ -139,10 +157,8 @@ export class ReservationRepository {
       });
     }
 
-    // Calcular el offset para la paginación
     const offset = page && limit ? (page - 1) * limit : undefined;
 
-    // Aplicar paginación si los parámetros están presentes
     if (offset !== undefined && limit !== undefined) {
       query = query.skip(offset).take(limit);
     }
@@ -162,7 +178,6 @@ export class ReservationRepository {
     page?: number,
     limit?: number,
   ): Promise<any> {
-    // Calcular el offset para la paginación
     const offset = page && limit ? (page - 1) * limit : undefined;
 
     const hasStartDate = filters?.startDate;
@@ -181,7 +196,6 @@ export class ReservationRepository {
       .leftJoinAndSelect('reservation.user', 'user')
       .leftJoinAndSelect('reservation.room', 'room');
 
-    // Filtro por fecha
     if (hasStartDate || hasEndDate) {
       const startDate = new Date(filters.startDate);
       const endDate = new Date(filters.endDate);
@@ -198,14 +212,12 @@ export class ReservationRepository {
       );
     }
 
-    // Filtro por estado
     if (hasStatus) {
       query = query.andWhere('reservation.status = :status', {
         status: filters.status,
       });
     }
 
-    // Aplicar paginación si los parámetros están presentes
     if (offset !== undefined && limit !== undefined) {
       query = query.skip(offset).take(limit);
     }
@@ -340,7 +352,17 @@ export class ReservationRepository {
 
     console.log(startDate);
 
-    // Crear la reserva
+    const now = moment().tz('America/Argentina/Buenos_Aires');
+    const createdAt = new Date(
+      now.year(),
+      now.month(),
+      now.date(),
+      now.hour(),
+      now.minute(),
+      0,
+      0,
+    );
+
     const reservation = this.reservationRepository.create({
       price: totalPrice,
       startDate,
@@ -351,6 +373,7 @@ export class ReservationRepository {
       guestLastName2: body.guestLastName2,
       guestName3: body.guestName3,
       guestLastName3: body.guestLastName3,
+      createdAt: createdAt,
       user,
       room,
     });
@@ -396,7 +419,6 @@ export class ReservationRepository {
     reservation.price = totalPrice;
     await this.reservationRepository.save(reservation);
 
-    //agregar email reserva
     await this.emailService.sendReservationemail(user.email, user.name);
 
     return reservation;
@@ -457,15 +479,5 @@ export class ReservationRepository {
     await this.reservationRepository.save(reservation);
 
     return reservation;
-  }
-
-  async testFunction(id: string) {
-    const reservation = await this.reservationRepository.findOne({
-      where: { id },
-    });
-
-    const users = await this.userRepository.find();
-
-    return 'test';
   }
 }

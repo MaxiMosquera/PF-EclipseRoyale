@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -43,12 +44,15 @@ export class Reservation {
     enum: ReservationStatus,
     default: ReservationStatus.PENDING,
   })
-  status: ReservationStatus
-  
+  status: ReservationStatus;
 
   @ApiProperty({ description: 'The end date of the reservation.' })
   @Column({ nullable: false, type: 'date' })
   endDate: Date;
+
+  @ApiProperty({ description: 'The creation date of the reservation.' })
+  @Column({ nullable: false, type: 'timestamp' })
+  createdAt: Date;
 
   @ApiProperty({ description: "The first name of the client's first guest." })
   @Column({ nullable: true, type: 'varchar', length: 50 })
@@ -97,9 +101,6 @@ export class Reservation {
   @IsOptional()
   @IsString()
   guestLastName4?: string;
- 
-
-  
 
   @ApiProperty({ description: 'The user who made the reservation.' })
   @ManyToOne(() => User, (user) => user.reservations)
