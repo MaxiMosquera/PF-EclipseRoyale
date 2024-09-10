@@ -62,9 +62,9 @@ export class ReservationRepository {
   @Cron('*/5 * * * *') // Cada 5 minutos para probar
   async releaseUnpaidReservations(): Promise<void> {
   const localTimezone = 'America/Argentina/Buenos_Aires'; // Ajusta según tu zona horaria
-  const fiveMinuteAgo = moment().tz(localTimezone).subtract(5, 'minutes').toDate();
+  const fiveMinuteAgo = moment().utc().subtract(5, 'minutes').toDate();
 
-  
+  console.log(`Buscando reservas creadas antes de: ${fiveMinuteAgo.toISOString()}`);
 
   // Buscar reservas en estado PENDING creadas hace más de 5 minuto en la zona horaria local
   const unpaidReservations = await this.reservationRepository.find({
@@ -78,6 +78,7 @@ export class ReservationRepository {
 
   // Cambiar el estado de las reservas a CANCELED
   for (const reservation of unpaidReservations) {
+    console.log(`Cancelando reserva con ID: ${reservation.id}, creada en: ${reservation.createdAt.toISOString()}`);
     reservation.status = ReservationStatus.CANCELED; // Cambia el estado a cancelado
     await this.reservationRepository.save(reservation);
   }
