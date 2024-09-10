@@ -112,7 +112,7 @@ export class AuthRepository {
           email,
           name: `${firstName}`,
           image: picture,
-          password: '', // You may or may not use this depending on your use case
+          password: '',
           adress: adress,
         });
         await this.userRepository.save(user);
@@ -123,7 +123,7 @@ export class AuthRepository {
         email,
         name: `${firstName} ${lastName}`,
         image: picture,
-        password: '', // You may or may not use this depending on your use case
+        password: '',
         adress: adress,
       });
       await this.userRepository.save(user);

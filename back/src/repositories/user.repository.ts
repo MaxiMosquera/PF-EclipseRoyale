@@ -70,6 +70,9 @@ export class UserRepository implements OnModuleInit {
 
   async updateUser(id: string, data: Partial<UpdateUserDto>): Promise<User> {
     const user: User = await this.userRepository.findOne({ where: { id } });
+
+    console.log(user);
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -82,6 +85,15 @@ export class UserRepository implements OnModuleInit {
       if (!isOldPasswordValid) {
         throw new BadRequestException('Old password is not valid');
       }
+      const hashedPassword = await bcrypt.hash(data.password, 10);
+      data.password = hashedPassword;
+    } else if (data.password && !data.oldPassword) {
+      if (user.password !== '') {
+        throw new BadRequestException(
+          'User already has a password, must to give old password to update it',
+        );
+      }
+
       const hashedPassword = await bcrypt.hash(data.password, 10);
       data.password = hashedPassword;
     }
