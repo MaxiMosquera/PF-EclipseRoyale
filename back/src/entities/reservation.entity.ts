@@ -52,7 +52,7 @@ export class Reservation {
   endDate: Date;
 
   @ApiProperty({ description: 'The creation date of the reservation.' })
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn({ type: 'timestamp',default: () => 'CURRENT_TIMESTAMP'  })
   createdAt: Date;
 
   @ApiProperty({ description: "The first name of the client's first guest." })

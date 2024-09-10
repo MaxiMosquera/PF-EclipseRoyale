@@ -59,26 +59,31 @@ export class ReservationRepository {
   }
 
   // Nuevo cron job para liberar reservas no pagadas después de 30 minutos
-  @Cron('*/1 * * * *') // Cada 30 minutos
-  async releaseUnpaidReservations() {
-    const thirtyMinutesAgo = moment().subtract(1, 'minutes').toDate();
-    
-    // Buscar reservas en estado PENDING creadas hace más de 30 minutos
-    const unpaidReservations = await this.reservationRepository.find({
-      where: {
-        status: ReservationStatus.PENDING,
-        createdAt: LessThan(thirtyMinutesAgo), // Asegúrate de que tu entidad tenga el campo createdAt
-      },
-    });
+  @Cron('*/5 * * * *') // Cada 5 minutos para probar
+  async releaseUnpaidReservations(): Promise<void> {
+  const localTimezone = 'America/Argentina/Buenos_Aires'; // Ajusta según tu zona horaria
+  const fiveMinuteAgo = moment().tz(localTimezone).subtract(5, 'minutes').toDate();
 
-    // Cambiar el estado de las reservas a CANCELED
-    for (const reservation of unpaidReservations) {
-      reservation.status = ReservationStatus.CANCELED; // Cambia el estado a cancelado
-      await this.reservationRepository.save(reservation);
-    }
+  
 
-    console.log(`Reservas no pagadas liberadas correctamente`);
+  // Buscar reservas en estado PENDING creadas hace más de 5 minuto en la zona horaria local
+  const unpaidReservations = await this.reservationRepository.find({
+    where: {
+      status: ReservationStatus.PENDING,
+      createdAt: LessThan(fiveMinuteAgo),
+    },
+  });
+
+  console.log(`Reservas pendientes encontradas: ${unpaidReservations.length}`);
+
+  // Cambiar el estado de las reservas a CANCELED
+  for (const reservation of unpaidReservations) {
+    reservation.status = ReservationStatus.CANCELED; // Cambia el estado a cancelado
+    await this.reservationRepository.save(reservation);
   }
+
+  console.log(`Reservas no pagadas liberadas correctamente`);
+}
 
   async updateReservationToInProgress(): Promise<void> {
     const localTimezone = 'America/Argentina/Buenos_Aires'; // Ajusta esto a tu zona horaria local
