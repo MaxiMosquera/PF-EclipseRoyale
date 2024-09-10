@@ -419,8 +419,6 @@ export class ReservationRepository {
     reservation.price = totalPrice;
     await this.reservationRepository.save(reservation);
 
-    await this.emailService.sendReservationemail(user.email, user.name);
-
     return reservation;
   }
 
@@ -446,7 +444,31 @@ export class ReservationRepository {
   async changestatusToPaid(id: string) {
     const reservation = await this.reservationRepository.findOne({
       where: { id },
+      relations: ['room', 'user', 'reservationServices'],
     });
+
+    const services: Service[] = [];
+
+    for (const reservationService of reservation.reservationServices) {
+      const reservationServiceEntity =
+        await this.reservationServiceRepository.findOne({
+          where: { id: reservationService.id },
+          relations: ['service'],
+        });
+
+      console.log(reservationServiceEntity);
+      const service = await this.serviceRepository.findOne({
+        where: { id: reservationServiceEntity.service.id },
+      });
+
+      if (!service) {
+        throw new NotFoundException('Service not found');
+      }
+
+      services.push(service);
+    }
+
+    console.log(services);
 
     if (!reservation) {
       throw new NotFoundException('Reservation not found');
@@ -459,7 +481,7 @@ export class ReservationRepository {
     reservation.status = ReservationStatus.PAID;
     await this.reservationRepository.save(reservation);
 
-    return reservation;
+    return { reservation, services };
   }
 
   async changeStatusToCancelled(id: string) {

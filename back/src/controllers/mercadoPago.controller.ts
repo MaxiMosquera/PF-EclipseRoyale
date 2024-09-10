@@ -9,6 +9,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ReservationRepository } from 'src/repositories/reservation.repository';
+import { MailService } from 'src/services/mail.service';
 import { MercadoPagoService } from 'src/services/mercadoPago.service';
 
 @Controller('mercado-pago')
@@ -16,6 +17,7 @@ export class MercadoPagoController {
   constructor(
     private readonly mercadoPagoService: MercadoPagoService,
     private readonly reservationRepository: ReservationRepository,
+    private readonly emailService: MailService,
   ) {}
 
   @Post()
@@ -26,10 +28,23 @@ export class MercadoPagoController {
   @Get('success/:id')
   async success(@Res() res, @Param('id', ParseUUIDPipe) id: string) {
     console.log('success');
-    const reservation = await this.reservationRepository.changestatusToPaid(id);
-    if (!reservation) {
+    const response = await this.reservationRepository.changestatusToPaid(id);
+    if (!response) {
       throw new NotFoundException('Reservation not found');
     }
+
+    const services: string[] = [];
+
+    response.services.forEach((service) => {
+      services.push(service.name);
+    });
+
+    await this.emailService.sendReservationEmail(
+      response.reservation.user.email,
+      response.reservation.user.name,
+      response.reservation,
+      services,
+    );
     res.redirect('https://front-hotel-app-six.vercel.app/pay-ok');
   }
 
