@@ -460,6 +460,17 @@ export class RoomRepository {
       relations: ['features'],
     });
   }
+
+  async getRoomPrices() {
+    const response: object[] = [];
+    for (const category of Object.values(Category)) {
+      const room = await this.roomRepository.findOne({
+        where: { category },
+      });
+
+      response.push({ category, price: room.price });
+    }
+
+    return { generalPrices: response };
+  }
 }
-// anda medio raro el pull request
-// arreglar el pull request
