@@ -99,14 +99,14 @@ export class GetReservationsFiltersDto {
     example: '2024-08-05',
   })
   @IsInt()
-  @IsNotEmpty()
-  startDate: string;
+  @IsOptional()
+  startDate?: string;
 
   @ApiProperty({
     description: 'End Date of the reservation',
     example: '2024-08-10',
   })
   @IsInt()
-  @IsNotEmpty()
-  endDate: string;
+  @IsOptional()
+  endDate?: string;
 }

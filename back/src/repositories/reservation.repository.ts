@@ -18,7 +18,14 @@ import { User } from 'src/entities/user.entity';
 import { ReservationStatus } from 'src/enum/reservationStatus.enums';
 import { MailService } from 'src/services/mail.service';
 import * as moment from 'moment-timezone';
-import { Equal, LessThan, Repository } from 'typeorm';
+import {
+  Equal,
+  In,
+  LessThan,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 
 @Injectable()
 export class ReservationRepository {
@@ -38,13 +45,11 @@ export class ReservationRepository {
 
   @Cron('0 8 * * *')
   async handleCronMorning() {
-    console.log('Ejecución diaria a las 8:00 AM');
     await this.updateReservationToInProgress();
   }
 
   @Cron('0 23 * * *')
   async handleCronNight() {
-    console.log('Ejecución diaria a las 11:00 PM');
     await this.updateReservationToFinished();
   }
 
@@ -56,10 +61,6 @@ export class ReservationRepository {
       .startOf('minute')
       .toDate();
 
-    console.log(
-      `Buscando reservas creadas antes de: ${fifteenMinutesAgo.toISOString()}`,
-    );
-
     const unpaidReservations = await this.reservationRepository.find({
       where: {
         status: ReservationStatus.PENDING,
@@ -67,14 +68,9 @@ export class ReservationRepository {
       },
     });
 
-    console.log(
-      `Reservas pendientes encontradas: ${unpaidReservations.length}`,
-    );
-
     unpaidReservations.forEach(async (reservation) => {
       reservation.status = ReservationStatus.CANCELED;
       await this.reservationRepository.save(reservation);
-      console.log(`Reserva ${reservation.id} cancelada.`);
     });
   }
 
@@ -298,8 +294,6 @@ export class ReservationRepository {
   }
 
   async checkin(id: string, body: CreateReservationDto) {
-    console.log(body);
-
     const isInvalidDate =
       !body.startDate || !body.endDate || (body.startDate && !body.endDate);
 
@@ -325,19 +319,31 @@ export class ReservationRepository {
     const startDate = moment.tz(body.startDate, localTimezone).toDate();
     const endDate = moment.tz(body.endDate, localTimezone).toDate();
 
-    console.log(startDate, endDate);
-
-    console.log(startDate, endDate);
-
     const days = Math.ceil(
       (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
     );
-    console.log(days);
 
     if (days <= 0) {
       throw new ConflictException('Invalid date range');
-    } else if (days > 30) {
-      throw new ConflictException('Maximum reservation duration is 30 days');
+    }
+
+    console.log(room);
+
+    const overlappingReservations = await this.reservationRepository.find({
+      where: {
+        room: { id: room.id },
+        status: In([ReservationStatus.PENDING, ReservationStatus.PAID]),
+        startDate: LessThanOrEqual(body.endDate),
+        endDate: MoreThanOrEqual(body.startDate),
+      },
+    });
+
+    console.log(overlappingReservations);
+
+    if (overlappingReservations.length > 0) {
+      throw new ConflictException(
+        'The room is already reserved for the selected dates',
+      );
     }
 
     const actuallyActiveReservation = await this.reservationRepository.findOne({
@@ -349,8 +355,6 @@ export class ReservationRepository {
     }
 
     let totalPrice: number = room.price * days;
-
-    console.log(startDate);
 
     const now = moment().tz('America/Argentina/Buenos_Aires');
     const createdAt = new Date(
@@ -387,11 +391,8 @@ export class ReservationRepository {
       if (!serviceEntity) {
         throw new NotFoundException(`Service of type ${serviceType} not found`);
       }
-      console.log('total price before', totalPrice);
 
       totalPrice += serviceEntity.price * days;
-      console.log('totalPrice', totalPrice);
-      console.log(serviceEntity.price);
 
       const reservationService = this.reservationServiceRepository.create({
         reservation,
@@ -409,7 +410,7 @@ export class ReservationRepository {
     if (!monthlyProfit) {
       await this.monthlyProfitRepository.save({
         year: startDate.getFullYear(),
-        month: startDate.getMonth(),
+        month: startDate.getMonth() + 1,
         profit: totalPrice,
       });
     } else {
@@ -456,7 +457,6 @@ export class ReservationRepository {
           relations: ['service'],
         });
 
-      console.log(reservationServiceEntity);
       const service = await this.serviceRepository.findOne({
         where: { id: reservationServiceEntity.service.id },
       });
@@ -467,8 +467,6 @@ export class ReservationRepository {
 
       services.push(service);
     }
-
-    console.log(services);
 
     if (!reservation) {
       throw new NotFoundException('Reservation not found');
