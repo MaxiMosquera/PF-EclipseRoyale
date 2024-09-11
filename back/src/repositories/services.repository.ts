@@ -106,4 +106,15 @@ export class ServiceRepository implements OnModuleInit {
 
     return { monthlyProfit, reservationsOnThisMonth };
   }
+
+  async getServicePrices() {
+    const ServicePrices: object[] = [];
+    const services = await this.serviceRepository.find();
+
+    services.forEach((services) => {
+      ServicePrices.push({ name: services.name, price: services.price });
+    });
+
+    return ServicePrices;
+  }
 }

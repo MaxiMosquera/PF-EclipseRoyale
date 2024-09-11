@@ -39,6 +39,11 @@ export class ServiceController {
     return await this.serviceRepository.getAllServices();
   }
 
+  @Get('getServicePrices')
+  async getServicePrices() {
+    return await this.serviceRepository.getServicePrices();
+  }
+
   @ApiOperation({
     summary: 'Get a service by ID',
     description: 'Retrieve a specific service by its ID.',

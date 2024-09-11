@@ -200,4 +200,9 @@ export class RoomController {
   async getRoomByNumber(@Query('number') number: number) {
     return await this.roomRepository.getRoomByNumber(number);
   }
+
+  @Get('getRoomPrices')
+  async getRoomPrices() {
+    return await this.roomRepository.getRoomPrices();
+  }
 }
