@@ -136,8 +136,6 @@ export class RoomController {
     type: UpdateRoomDto,
   })
   @ApiResponse(getRoomByIdApiResponse)
-  @Roles(Role.ADMIN, Role.EMPLOYEE)
-  @UseGuards(AuthGUard, AdminGuard)
   @Put('updateRoom/:id')
   async updateRoom(
     @Param('id', ParseUUIDPipe) id: string,
