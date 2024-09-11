@@ -147,8 +147,6 @@ export class RoomController {
     return await this.roomRepository.updateRoom(id, body, applyToAll);
   }
 
-  @Roles(Role.ADMIN, Role.EMPLOYEE)
-  @UseGuards(AuthGUard, AdminGuard)
   @Get('getRoomByIdAdmin/:id')
   async getRoomByIdAdmin(@Param('id', ParseUUIDPipe) id: string) {
     return await this.roomRepository.getRoomByIdAdmin(id);

@@ -9,12 +9,17 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/decorators/role.decorator';
 import {
   CreateReservationDto,
   GetReservationsFiltersDto,
 } from 'src/dtos/reservation.dtos';
+import {
+  createReservationApiResponse,
+  getAllReservationsApiResponse,
+  getReservationsEmailApiResponse,
+} from 'src/dtos/responses.dtos/reservationResponse';
 import { Role } from 'src/enum/user.enums';
 import { AdminGuard } from 'src/guards/admin.guard';
 import { AuthGUard } from 'src/guards/auth.guard';
@@ -30,11 +35,7 @@ export class ReservationController {
     description:
       'Retrieve reservations for a user by their ID, with optional filters.',
   })
-  @ApiParam({
-    name: 'id',
-    description: 'UUID of the user whose reservations are to be fetched',
-    type: String,
-  })
+  @ApiResponse(getReservationsEmailApiResponse)
   @Get('getUserReservations/:email') // user email
   async getReservations(
     @Param('email') email: string,
@@ -54,6 +55,7 @@ export class ReservationController {
     summary: 'Get all reservations',
     description: 'Retrieve all reservations with optional filters.',
   })
+  @ApiResponse(getAllReservationsApiResponse)
   @Get('getAllReservations')
   async getReservationsAll(
     @Query() filters?: GetReservationsFiltersDto,
@@ -95,7 +97,8 @@ export class ReservationController {
     description: 'UUID of the user for whom the reservation is to be created',
     type: String,
   })
-  @Post('create-reservation/:id') // user id
+  @ApiResponse(createReservationApiResponse)
+  @Post('create-reservation/:id')
   async checkin(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: CreateReservationDto,
