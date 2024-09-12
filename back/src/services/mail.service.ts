@@ -34,8 +34,8 @@ export class MailService {
     const mailOptions = {
       from: '"Hotel Eclipse Royale" <contactoeclipseroyale@gmail.com>',
       to: user.email,
-      subject: 'Registro exitoso',
-      text: '¡Gracias por registrarte!',
+      subject: 'Activación de cuenta',
+      text: '¡Gracias por registrarte! Activa tu cuenta haciendo clic en el enlace.',
       html: `<!DOCTYPE html>
   <html lang="es">
   <head>
@@ -83,7 +83,7 @@ export class MailService {
         font-size: 16px;
         margin: 20px 0;
       }
-         .button {
+      .button {
         display: inline-block;
         padding: 10px 20px;
         font-size: 16px;
@@ -95,13 +95,13 @@ export class MailService {
         font-weight: bold;
         box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2), -3px -3px 6px rgba(255, 255, 255, 0.5);
         transition: 0.3s;
-    }
-
-    .button:hover {
-          background: linear-gradient(145deg, #f7e5b4, #d4af37);
-          box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.2), inset -3px -3px 6px rgba(255, 255, 255, 0.5);
-          color: #000000;
-        }
+      }
+  
+      .button:hover {
+        background: linear-gradient(145deg, #f7e5b4, #d4af37);
+        box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.2), inset -3px -3px 6px rgba(255, 255, 255, 0.5);
+        color: #000000;
+      }
       .footer {
         padding: 20px;
         text-align: center;
@@ -118,8 +118,8 @@ export class MailService {
       </div>
       <div class="content">
         <h2>¡Gracias por registrarte, ${user.name}!</h2>
-        <p>Nos alegra que hayas creado una cuenta con nosotros. Ahora puedes acceder a nuestros servicios y disfrutar de todas las ventajas que ofrecemos.</p>
-        <a href="https://front-hotel-app-six.vercel.app/" class="button">Volver al inicio</a>
+        <p>Para completar tu registro, por favor activa tu cuenta haciendo clic en el botón de abajo.</p>
+        <a href="https://front-hotel-app-six.vercel.app/activate/${user.id}" class="button">Activar cuenta</a>
       </div>
       <div class="footer">
         <p>&copy; 2024 Hotel Eclipse Royale. Todos los derechos reservados.</p>
@@ -266,7 +266,6 @@ export class MailService {
     await this.transporter.sendMail(mailOptions);
   }
 
-
   async sendReservationEmail(
     email: string,
     name: string,
@@ -306,9 +305,10 @@ export class MailService {
     const mailOptions = {
       from: '"Hotel Eclipse Royale" <contactoeclipseroyale@gmail.com>',
       to: user.email,
-      subject: 'Registro exitoso',
-      text: '¡Gracias por registrarte!',
-      html: `<html lang="es">
+      subject: 'Activación de cuenta',
+      text: '¡Gracias por registrarte! Activa tu cuenta haciendo clic en el enlace.',
+      html: `<!DOCTYPE html>
+  <html lang="es">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -367,11 +367,12 @@ export class MailService {
         box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2), -3px -3px 6px rgba(255, 255, 255, 0.5);
         transition: 0.3s;
       }
-        .button:hover {
-          background: linear-gradient(145deg, #f7e5b4, #d4af37);
-          box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.2), inset -3px -3px 6px rgba(255, 255, 255, 0.5);
-          color: #000000;
-        }
+  
+      .button:hover {
+        background: linear-gradient(145deg, #f7e5b4, #d4af37);
+        box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.2), inset -3px -3px 6px rgba(255, 255, 255, 0.5);
+        color: #000000;
+      }
       .footer {
         padding: 20px;
         text-align: center;
@@ -388,9 +389,8 @@ export class MailService {
       </div>
       <div class="content">
         <h2>¡Gracias por registrarte, ${user.name}!</h2>
-        <p>Nos alegra que te hayas unido a nosotros. Ahora puedes acceder a nuestros servicios y disfrutar de todas las ventajas que ofrecemos.</p>
-        <p>Ya que te registraste utilizando Google, te invitamos a completar tus datos en la sección de "Editar Perfil" para que podamos conocerte mejor y ofrecerte una experiencia personalizada.</p>
-        <a href="https://front-hotel-app-six.vercel.app/" class="button">Volver al inicio</a>
+        <p>Ya que te registraste utilizando Google, por favor activa tu cuenta haciendo clic en el botón de abajo.</p>
+        <a href="https://front-hotel-app-six.vercel.app/activate/${user.id}" class="button">Activar cuenta</a>
       </div>
       <div class="footer">
         <p>&copy; 2024 Hotel Eclipse Royale. Todos los derechos reservados.</p>
