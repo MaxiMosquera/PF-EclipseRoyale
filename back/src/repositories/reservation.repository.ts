@@ -74,6 +74,16 @@ export class ReservationRepository {
     });
   }
 
+  @Cron('0 0 * * 4')
+  async handleCron() {
+    const users = await this.userRepository.find();
+    console.log('funciono');
+
+    for (const user of users) {
+      await this.emailService.sendHotelUpdates(user);
+    }
+  }
+
   async updateReservationToInProgress(): Promise<void> {
     const localTimezone = 'America/Argentina/Buenos_Aires';
     const today = moment().tz(localTimezone).startOf('day').toDate();
